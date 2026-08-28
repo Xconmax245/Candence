@@ -1,0 +1,36 @@
+{
+  "name": "cadence",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cadence — a fully onchain-reactive agent arena for DreamDEX Event Contracts on Somnia.",
+  "license": "MIT",
+  "packageManager": "pnpm@9.7.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "doctor": "tsx scripts/doctor.ts",
+    "deploy": "tsx scripts/deploy.ts",
+    "seed": "tsx scripts/seed-agents.ts",
+    "build": "pnpm -r --filter=./packages/* --filter=./apps/* build",
+    "dev:web": "pnpm --filter @cadence/web dev",
+    "dev:dashboard": "echo \"Dashboard is served at http://localhost:3000/dashboard — run dev:web first\" && pnpm --filter @cadence/web dev",
+
+    "watcher": "pnpm --filter @cadence/watcher start",
+    "copilot": "pnpm --filter @cadence/ai-copilot start",
+    "contracts:build": "cd contracts && forge build",
+    "contracts:test": "cd contracts && forge test -vvv",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "@somnia-chain/markets-sdk": "^0.25.0",
+    "viem": "^2.17.0"
+  }
+}

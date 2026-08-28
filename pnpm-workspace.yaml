@@ -1,0 +1,6 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+  - "watcher"
+  - "ai-copilot"
+  - "dashboard"
