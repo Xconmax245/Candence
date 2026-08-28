@@ -1,0 +1,25 @@
+{
+  "name": "@cadence/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./abi": "./src/abi/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"(lint) @cadence/shared\""
+  },
+  "dependencies": {
+    "@somnia-chain/markets-sdk": "^0.25.0",
+    "viem": "^2.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.3"
+  }
+
+}

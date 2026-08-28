@@ -1,0 +1,47 @@
+{
+  "name": "@cadence/agent-kit",
+  "version": "0.1.0",
+  "description": "Build reactive trading agents for DreamDEX Event Contracts on Somnia. Status-gated reads, bigint-safe tick/lot snapping, the operator (session-key) model for non-custodial copy-trading, and an auto-claim sweeper — the exact production-robustness surface Cadence itself runs on.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "keywords": [
+    "somnia",
+    "dreamdex",
+    "event-contracts",
+    "prediction-markets",
+    "reactive",
+    "trading-agent",
+    "copy-trading",
+    "defi"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cadence-arena/cadence.git",
+    "directory": "packages/agent-sdk"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"(lint) @cadence/agent-kit\""
+  },
+  "peerDependencies": {
+    "@somnia-chain/markets-sdk": ">=0.25.0",
+    "viem": "^2.17.0"
+  },
+  "devDependencies": {
+    "@somnia-chain/markets-sdk": "^0.25.0",
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.3",
+    "viem": "^2.17.0"
+  }
+}
