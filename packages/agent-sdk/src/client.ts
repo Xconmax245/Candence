@@ -1,5 +1,5 @@
 /**
- * @cadence/agent-kit — market discovery & status gating.
+ * @candence/agent-kit — market discovery & status gating.
  *
  * The golden rule: gate EVERY write on live onchain status === Trading (1). The
  * indexer can lag seconds behind chain state, so `assertTradable` re-reads status

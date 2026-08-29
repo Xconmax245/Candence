@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 import {Ownable2Step, ReentrancyGuard} from "./base/Auth.sol";
-import {CadenceMath} from "./base/CadenceMath.sol";
-import {IAgentVault, VaultMode, IRiskEngine, ICopilotAttestor} from "./interfaces/ICadence.sol";
+import {CandenceMath} from "./base/CandenceMath.sol";
+import {IAgentVault, VaultMode, IRiskEngine, ICopilotAttestor} from "./interfaces/ICandence.sol";
 import {
     IBinaryMarketsModule,
     IBinarySettlement,
@@ -37,7 +37,7 @@ import {
  *         sweeper (§4.6) on the same key/nonce as trading to avoid nonce races.
  */
 contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
-    using CadenceMath for uint256;
+    using CandenceMath for uint256;
 
     // ── Telemetry (dashboard §6) ──
     event OrderPlaced(
@@ -198,7 +198,7 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
 
         // 2) Typed market fields only (§1.7 #11) + interval-scaled headroom (§1.7 #9).
         (, uint32 intervalSec,,, uint64 expiryTime,) = module.marketInfo(marketKey);
-        if (!CadenceMath.hasHeadroom(block.timestamp, expiryTime, intervalSec)) {
+        if (!CandenceMath.hasHeadroom(block.timestamp, expiryTime, intervalSec)) {
             emit SkippedNotWritable(marketKey, "no-headroom");
             return;
         }
@@ -208,15 +208,15 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
 
         // 4) Snap price + size to grid as bigints (§1.7 #3, #6).
         (uint256 tick, uint256 scale, uint256 lot) = module.poolGrid(marketKey);
-        uint256 price = CadenceMath.snapPrice(rawPrice, tick, scale);
+        uint256 price = CandenceMath.snapPrice(rawPrice, tick, scale);
         uint256 sizeCap = riskEngine.positionCapBase(address(this));
-        uint256 size = CadenceMath.quantizeSize(sizeCap, lot);
+        uint256 size = CandenceMath.quantizeSize(sizeCap, lot);
         if (size == 0) {
             emit SkippedNotWritable(marketKey, "size-zero");
             return;
         }
 
-        uint256 notional = CadenceMath.notional(price, size, scale);
+        uint256 notional = CandenceMath.notional(price, size, scale);
         uint64 expireNs = _expireNs(expiryTime);
 
         // 5) Place for each granted owner, enforcing the spend cap onchain (§1.6).

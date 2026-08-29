@@ -1,8 +1,8 @@
-# @cadence/agent-kit
+# @candence/agent-kit
 
 **Build reactive trading agents for [DreamDEX Event Contracts](https://docs.dreamdex.io) on [Somnia](https://somnia.network).**
 
-This is the exact production-robustness surface [Cadence](https://github.com/cadence-arena/cadence) runs its own agents on, published so you can deploy a strategy against Event Contracts without re-learning every gotcha the hard way. It is intentionally small, dependency-light (viem + the official `@somnia-chain/markets-sdk` as peers), and strategy-agnostic.
+This is the exact production-robustness surface [Candence](https://github.com/candence-arena/candence) runs its own agents on, published so you can deploy a strategy against Event Contracts without re-learning every gotcha the hard way. It is intentionally small, dependency-light (viem + the official `@somnia-chain/markets-sdk` as peers), and strategy-agnostic.
 
 > Event Contracts are binary Up/Down markets on BTC/ETH price over rolling 15-minute and 1-hour windows. Winning contracts redeem for exactly 1 USDso; losers expire worthless. Zero fees, fully collateralized. This kit assumes that model.
 
@@ -22,7 +22,7 @@ Six things will silently break a naive Event Contracts bot. This kit handles all
 ## Install
 
 ```bash
-npm i @cadence/agent-kit @somnia-chain/markets-sdk viem
+npm i @candence/agent-kit @somnia-chain/markets-sdk viem
 # requires @somnia-chain/markets-sdk >= 0.25.0
 ```
 
@@ -36,7 +36,7 @@ import {
   pickCurrentWindow,
   type MarketsClient,
   type PlaceSender,
-} from "@cadence/agent-kit";
+} from "@candence/agent-kit";
 
 // You provide these two adapters over @somnia-chain/markets-sdk + your wallet.
 const client: MarketsClient = /* wraps exchange.client.* */ myClient;
@@ -69,7 +69,7 @@ async function onPriceEvent(venueId: `0x${string}`, upPriceHistory: number[]) {
 DreamDEX's real primitive is an **operator**, not a fund-holding vault. An owner grants an operator the `placeOrderFor` / `cancelOrderFor` / `reduceOrderFor` selectors; **fills settle to the owner's own wallet**, and deposits/withdrawals stay owner-only. Authorization is revocable immediately.
 
 ```ts
-import { buildGrantCalldata, buildRevokeCalldata } from "@cadence/agent-kit";
+import { buildGrantCalldata, buildRevokeCalldata } from "@candence/agent-kit";
 
 // One signature onboards a follower — the entire "clone this agent" flow:
 const grants = buildGrantCalldata(agentOperatorAddress); // 3 calldata blobs, batch via multicall
@@ -79,12 +79,12 @@ const grants = buildGrantCalldata(agentOperatorAddress); // 3 calldata blobs, ba
 const revokes = buildRevokeCalldata(agentOperatorAddress);
 ```
 
-The registry does **not** enforce spend caps — your agent (or Cadence's `RiskEngine`) must. `runOnce`'s `maxStake` is that enforcement point on the offchain side.
+The registry does **not** enforce spend caps — your agent (or Candence's `RiskEngine`) must. `runOnce`'s `maxStake` is that enforcement point on the offchain side.
 
 ## Always-on claiming
 
 ```ts
-import { sweepClaims, outstandingUnclaimed } from "@cadence/agent-kit";
+import { sweepClaims, outstandingUnclaimed } from "@candence/agent-kit";
 
 // Run this on the SAME key/nonce sequence as trading (avoid nonce races):
 const claims = await sweepClaims(client, redeemer, venueId, {
@@ -103,7 +103,7 @@ Voided markets are handled correctly: **both sides redeem at 0.5 each (break-eve
 A `Strategy` is a **pure function** — no IO, no signing — which makes it trivially unit-testable:
 
 ```ts
-import { Outcome, type Strategy } from "@cadence/agent-kit";
+import { Outcome, type Strategy } from "@candence/agent-kit";
 
 const myStrategy: Strategy = (ctx) => {
   // ctx.market, ctx.upPriceHistory, ctx.signal (optional AI tilt), ctx.maxStake

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Ownable2Step} from "./base/Auth.sol";
-import {ICopilotAttestor} from "./interfaces/ICadence.sol";
+import {ICopilotAttestor} from "./interfaces/ICandence.sol";
 
 /**
  * @title CopilotAttestor
@@ -57,7 +57,7 @@ contract CopilotAttestor is Ownable2Step, ICopilotAttestor {
 
     /**
      * @notice Post an attested signal for a window. The digest MUST match the
-     *         offchain `attest.ts` construction exactly (CADENCE_SIGNAL_V1). The
+     *         offchain `attest.ts` construction exactly (CANDENCE_SIGNAL_V1). The
      *         signature is verified against `signer`; anyone may relay it.
      */
     function postSignal(
@@ -69,7 +69,7 @@ contract CopilotAttestor is Ownable2Step, ICopilotAttestor {
     ) external {
         bytes32 digest = keccak256(
             abi.encodePacked(
-                "CADENCE_SIGNAL_V1", windowKey, scoreBps, confidenceBps, issuedAt
+                "CANDENCE_SIGNAL_V1", windowKey, scoreBps, confidenceBps, issuedAt
             )
         );
         bytes32 ethSigned =

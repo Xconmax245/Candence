@@ -1,5 +1,5 @@
 /**
- * Cadence — seed-agents.ts (DIRECTIVE §7 Phase 3, §4.2).
+ * Candence — seed-agents.ts (DIRECTIVE §7 Phase 3, §4.2).
  *
  * Deploys the 4–6 house agents (a mix of Reactive and AI-assisted modes) via the
  * AgentVaultFactory, registers each with the ReactivitySubscriber, and prints the
@@ -30,11 +30,11 @@ import {
   viemChainFor,
   resolveVenueId,
   OPERATOR_SELECTORS,
-  CadenceAbi,
+  CandenceAbi,
 } from "../packages/shared/src/index.js";
 import { loadArtifact, readDeployment, writeJson, explorerAddr } from "./lib/artifacts.js";
 
-/** VaultMode enum (matches ICadence.sol): 0 = Reactive, 1 = AiAssisted. */
+/** VaultMode enum (matches ICandence.sol): 0 = Reactive, 1 = AiAssisted. */
 const MODE = { reactive: 0, aiAssisted: 1 } as const;
 
 interface AgentSpec {
@@ -46,17 +46,17 @@ interface AgentSpec {
 }
 
 /**
- * The house roster (§7 Phase 3). Cadence-original names (musical tempo terms —
- * on-theme for "Cadence"). A deliberate mix of divisions so the dashboard's
+ * The house roster (§7 Phase 3). Candence-original names (musical tempo terms —
+ * on-theme for "Candence"). A deliberate mix of divisions so the dashboard's
  * per-division breakdown (§6) has both populated from day one.
  */
 const ROSTER: AgentSpec[] = [
-  { name: "Metronome", mode: MODE.reactive, capBase: 25_000_000n, tokenUri: "ipfs://cadence/metronome" },
-  { name: "Downbeat", mode: MODE.reactive, capBase: 25_000_000n, tokenUri: "ipfs://cadence/downbeat" },
-  { name: "Syncopate", mode: MODE.reactive, capBase: 20_000_000n, tokenUri: "ipfs://cadence/syncopate" },
-  { name: "Andante", mode: MODE.aiAssisted, capBase: 20_000_000n, tokenUri: "ipfs://cadence/andante" },
-  { name: "Presto", mode: MODE.aiAssisted, capBase: 20_000_000n, tokenUri: "ipfs://cadence/presto" },
-  { name: "Rubato", mode: MODE.aiAssisted, capBase: 15_000_000n, tokenUri: "ipfs://cadence/rubato" },
+  { name: "Metronome", mode: MODE.reactive, capBase: 25_000_000n, tokenUri: "ipfs://candence/metronome" },
+  { name: "Downbeat", mode: MODE.reactive, capBase: 25_000_000n, tokenUri: "ipfs://candence/downbeat" },
+  { name: "Syncopate", mode: MODE.reactive, capBase: 20_000_000n, tokenUri: "ipfs://candence/syncopate" },
+  { name: "Andante", mode: MODE.aiAssisted, capBase: 20_000_000n, tokenUri: "ipfs://candence/andante" },
+  { name: "Presto", mode: MODE.aiAssisted, capBase: 20_000_000n, tokenUri: "ipfs://candence/presto" },
+  { name: "Rubato", mode: MODE.aiAssisted, capBase: 15_000_000n, tokenUri: "ipfs://candence/rubato" },
 ];
 
 function requirePk(): Hex {
@@ -69,8 +69,8 @@ function requirePk(): Hex {
 
 async function main(): Promise<void> {
   const net = activeNetwork();
-  if (net.name === "mainnet" && process.env.CADENCE_ALLOW_MAINNET !== "1") {
-    throw new Error("Refusing to seed mainnet without CADENCE_ALLOW_MAINNET=1 (§0.4).");
+  if (net.name === "mainnet" && process.env.CANDENCE_ALLOW_MAINNET !== "1") {
+    throw new Error("Refusing to seed mainnet without CANDENCE_ALLOW_MAINNET=1 (§0.4).");
   }
 
   const dep = readDeployment(net.name);
@@ -91,7 +91,7 @@ async function main(): Promise<void> {
 
   const { venueId, source } = await resolveVenueId({ force: true });
   // eslint-disable-next-line no-console
-  console.log(`\nCadence seed → ${net.name} (venue ${source}: ${venueId})`);
+  console.log(`\nCandence seed → ${net.name} (venue ${source}: ${venueId})`);
   // eslint-disable-next-line no-console
   console.log(`factory: ${factoryAddr}\n`);
 
@@ -121,7 +121,7 @@ async function main(): Promise<void> {
     for (const log of receipt.logs) {
       try {
         const parsed = decodeEventLog({
-          abi: CadenceAbi.agentVaultFactoryAbi as unknown as Abi,
+          abi: CandenceAbi.agentVaultFactoryAbi as unknown as Abi,
           data: log.data,
           topics: log.topics,
         });

@@ -1,5 +1,5 @@
 /**
- * Cadence — AI signal attestation (DIRECTIVE §5, §4.2).
+ * Candence — AI signal attestation (DIRECTIVE §5, §4.2).
  *
  * The AI copilot NEVER gates order timing. It only *offers* a signed, timestamped
  * directional signal that an AI-assisted vault MAY read as one weighted input. If
@@ -10,7 +10,7 @@
  * ┌── CRITICAL: this MUST match CopilotAttestor.sol byte-for-byte ───────────────┐
  * │ The onchain verifier computes:                                               │
  * │   digest   = keccak256(abi.encodePacked(                                      │
- * │                "CADENCE_SIGNAL_V1", windowKey, scoreBps, confidenceBps,       │
+ * │                "CANDENCE_SIGNAL_V1", windowKey, scoreBps, confidenceBps,       │
  * │                issuedAt))                                                     │
  * │   ethSigned= keccak256("\x19Ethereum Signed Message:\n32" ‖ digest)          │
  * │   require(ecrecover(ethSigned, sig) == signer)                               │
@@ -55,7 +55,7 @@ export function computeWindowKey(marketId: Hex, windowOpenSec: number): Hex {
 
 /**
  * The pre-personal-sign digest. MUST equal CopilotAttestor's
- * keccak256(abi.encodePacked("CADENCE_SIGNAL_V1", windowKey, scoreBps,
+ * keccak256(abi.encodePacked("CANDENCE_SIGNAL_V1", windowKey, scoreBps,
  * confidenceBps, issuedAt)). Note scoreBps is int32 (signed) onchain.
  */
 export function signalDigest(params: {
@@ -68,7 +68,7 @@ export function signalDigest(params: {
     encodePacked(
       ["string", "bytes32", "int32", "uint16", "uint64"],
       [
-        "CADENCE_SIGNAL_V1",
+        "CANDENCE_SIGNAL_V1",
         params.windowKey,
         params.scoreBps,
         params.confidenceBps,

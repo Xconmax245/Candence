@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 /**
- * @title CadenceMath
+ * @title CandenceMath
  * @notice Onchain bigint price/size snapping — the contract-side enforcement of
  *         DIRECTIVE §1.7 gotchas #3 (never off-tick prices) and #6 (always
  *         lot-quantized sizes). The offchain `pricing.ts` mirrors this exactly so
@@ -10,7 +10,7 @@ pragma solidity ^0.8.24;
  *
  *         All values are integer base units. There is deliberately no float path.
  */
-library CadenceMath {
+library CandenceMath {
     error PriceOutOfRange();
     error BadTick();
     error BadLot();

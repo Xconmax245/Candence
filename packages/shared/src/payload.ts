@@ -1,5 +1,5 @@
 /**
- * Cadence — reactive event payload codec (shared).
+ * Candence — reactive event payload codec (shared).
  *
  * The ReactivitySubscriber and AgentVault agree on a fixed 96-byte payload
  * layout for the price event `data` (see ReactivitySubscriber._extractMarketKey

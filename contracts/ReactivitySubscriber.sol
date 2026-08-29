@@ -7,11 +7,11 @@ import {
     IReactiveHandler,
     REACTIVITY_PRECOMPILE
 } from "./interfaces/IReactivity.sol";
-import {IAgentVault} from "./interfaces/ICadence.sol";
+import {IAgentVault} from "./interfaces/ICandence.sol";
 
 /**
  * @title ReactivitySubscriber
- * @notice The single onchain entry point for Cadence's reactive thesis
+ * @notice The single onchain entry point for Candence's reactive thesis
  *         (DIRECTIVE §4.1). It subscribes to the DreamDEX price event via the
  *         0x0100 precompile (following the SpotStopOrderRegistry pattern) and
  *         fans each delivery out to every registered AgentVault.

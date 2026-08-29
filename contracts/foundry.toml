@@ -1,4 +1,4 @@
-# Cadence — Foundry configuration
+# Candence — Foundry configuration
 # Shannon testnet (50312) is the default target (DIRECTIVE §0.4).
 
 [profile.default]

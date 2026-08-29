@@ -1,4 +1,4 @@
-# Cadence — SDK & Docs Feedback Report
+# Candence — SDK & Docs Feedback Report
 
 Submitted as the optional SDK/docs feedback deliverable. This is written from the perspective of a team that built a production-shaped system (onchain reactive triggering, an operator-based copy-trading layer, a claim sweeper, and a live reliability dashboard) against Event Contracts and `@somnia-chain/markets-sdk`. Every item below cost us real debugging time; each is framed as a concrete, actionable suggestion rather than a complaint. Nothing here is a blocker — the surface is genuinely good — but these are the sharp edges a new integrator will hit in the same order we did.
 

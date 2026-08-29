@@ -4,7 +4,7 @@ import { Reveal } from "./motion";
 
 /**
  * The dark "mechanism" band (DIRECTIVE §11.6) repurposed verbatim to explain
- * Cadence's reactive pipeline. Terminal nodes (the onchain trigger and the
+ * Candence's reactive pipeline. Terminal nodes (the onchain trigger and the
  * resulting order) are accent-colored, exactly as the reference colors its
  * terminal flow nodes.
  */

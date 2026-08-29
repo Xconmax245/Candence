@@ -1,6 +1,6 @@
 /**
- * Cadence — shared domain types.
- * Mirrors the Event Contracts protocol surface (DIRECTIVE §1) and Cadence's own
+ * Candence — shared domain types.
+ * Mirrors the Event Contracts protocol surface (DIRECTIVE §1) and Candence's own
  * telemetry model (DIRECTIVE §4.1, §6).
  */
 

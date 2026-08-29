@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Timelocked} from "./base/Auth.sol";
-import {IRiskEngine} from "./interfaces/ICadence.sol";
+import {IRiskEngine} from "./interfaces/ICandence.sol";
 
 /**
  * @title RiskEngine

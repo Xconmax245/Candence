@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Cadence motion primitives — a lightweight, dependency-free AOS-style layer.
+ * Candence motion primitives — a lightweight, dependency-free AOS-style layer.
  *
  * Why not the `aos` npm package? It's an unmaintained, non-tree-shaken global
  * that fights RSC hydration and ships its own CSS we'd have to override to stay

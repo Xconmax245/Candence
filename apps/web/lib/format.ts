@@ -1,4 +1,4 @@
-/** Cadence web — display formatting helpers (presentation only). */
+/** Candence web — display formatting helpers (presentation only). */
 
 export function shortHash(h: string, lead = 6, tail = 4): string {
   if (h.length <= lead + tail + 2) return h;

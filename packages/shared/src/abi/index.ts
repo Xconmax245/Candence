@@ -1,5 +1,5 @@
 /**
- * Cadence contract ABIs (human-readable, viem-compatible).
+ * Candence contract ABIs (human-readable, viem-compatible).
  *
  * Kept in lock-step with the Solidity in `contracts/`. Only the events + external
  * functions the offchain stack actually consumes are listed — the telemetry
@@ -145,7 +145,7 @@ export const copilotAttestorAbi = [
   "function signer() view returns (address)",
 ] as const;
 
-export const CADENCE_CONTRACTS = [
+export const CANDENCE_CONTRACTS = [
   "ReactivitySubscriber",
   "AgentVault",
   "AgentVaultFactory",

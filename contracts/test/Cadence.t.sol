@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {CadenceBaseTest} from "./Base.t.sol";
+import {CandenceBaseTest} from "./Base.t.sol";
 import {AgentVault} from "../AgentVault.sol";
 import {ReactivitySubscriber} from "../ReactivitySubscriber.sol";
 import {StrategyNFT} from "../StrategyNFT.sol";
 import {CopilotAttestor} from "../CopilotAttestor.sol";
-import {VaultMode} from "../interfaces/ICadence.sol";
+import {VaultMode} from "../interfaces/ICandence.sol";
 import {MarketStatus} from "../interfaces/IDreamDEX.sol";
 
 /**
- * @title CadenceTest
+ * @title CandenceTest
  * @notice Unit coverage for the Phase 6 DoD: reactive cycle, operator/non-custody
  *         model, spend-cap enforcement, circuit breaker, claim/void logic,
  *         soulbound gating, timelock, and per-vault reactive isolation.
  */
-contract CadenceTest is CadenceBaseTest {
+contract CandenceTest is CandenceBaseTest {
     function setUp() public {
         _deploySystem();
         _configureMarket(MK, 60_000 * SCALE);

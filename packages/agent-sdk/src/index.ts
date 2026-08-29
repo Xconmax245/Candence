@@ -1,8 +1,8 @@
 /**
- * @cadence/agent-kit — build reactive trading agents for DreamDEX Event
+ * @candence/agent-kit — build reactive trading agents for DreamDEX Event
  * Contracts on Somnia.
  *
- * This is the exact production-robustness surface Cadence's own agents run on,
+ * This is the exact production-robustness surface Candence's own agents run on,
  * published so other builders can deploy strategies against Event Contracts
  * without re-learning every gotcha the hard way:
  *

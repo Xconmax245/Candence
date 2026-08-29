@@ -1,5 +1,5 @@
 /**
- * Cadence — bigint-safe pricing & sizing.
+ * Candence — bigint-safe pricing & sizing.
  *
  * THE single most dangerous class of bug on Event Contracts (DIRECTIVE §1.7):
  *   #3 — floating-point prices on 18-decimal venues revert with `InvalidPrice`.

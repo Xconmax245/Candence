@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Cadence design system (DIRECTIVE §11) — tokens mirrored into Tailwind so both
+ * Candence design system (DIRECTIVE §11) — tokens mirrored into Tailwind so both
  * utility classes and the CSS custom properties in globals.css stay in lockstep.
  * Hex values, radii, and the spacing scale are reused VERBATIM per §11.10.
  */
@@ -25,7 +25,7 @@ const config: Config = {
         cloud: "#ececee",
         paper: "#f4f4f5",
         snow: "#ffffff",
-        // accent — Cadence keeps the reference's role structure, distinct hue.
+        // accent — Candence keeps the reference's role structure, distinct hue.
         ember: "#ff5a00",
         "ember-soft": "#fff1e9",
       },

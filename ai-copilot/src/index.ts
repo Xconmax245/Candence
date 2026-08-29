@@ -1,5 +1,5 @@
 /**
- * Cadence AI copilot — main loop (DIRECTIVE §5).
+ * Candence AI copilot — main loop (DIRECTIVE §5).
  *
  * A strict window-aligned clock that, once per window and WELL INSIDE the window
  * so vaults can read it in time:
@@ -31,7 +31,7 @@ import {
   type Asset,
   type IntervalSec,
   type RestMarket,
-} from "@cadence/shared";
+} from "@candence/shared";
 import { computeSignal, type Candle, type SignalInputs } from "./signal.js";
 import { attestAndPost, gradeWindow, type PostContext } from "./attest.js";
 
@@ -99,7 +99,7 @@ async function main(): Promise<void> {
 
   // eslint-disable-next-line no-console
   console.log(
-    `\nCadence AI copilot (attested signals — OFF the reactive critical path)\n` +
+    `\nCandence AI copilot (attested signals — OFF the reactive critical path)\n` +
       `  network:  ${net.name} (${net.chainId})\n` +
       `  attestor: ${attestor}\n` +
       `  signer:   ${signer.address}\n` +

@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎼 Cadence
+# 🎼 Candence
 
 ### A fully onchain-reactive agent arena for [DreamDEX](https://dreamdex.io) Event Contracts on [Somnia](https://somnia.network)
 
@@ -20,7 +20,7 @@ The reactive path *is* the product. Everything else exists so a judge can verify
 
 <br/>
 
-[**Thesis**](#-the-thesis-why-cadence-exists) · [**Features**](#-three-stacked-value-props) · [**Architecture**](#-architecture) · [**Quickstart**](#-quickstart) · [**Contracts**](#-smart-contract-suite) · [**Agent SDK**](#-the-agent-sdk--cadenceagent-kit) · [**Dashboard**](#-telemetry--the-reliability-dashboard) · [**Docs**](#-documentation)
+[**Thesis**](#-the-thesis-why-candence-exists) · [**Features**](#-three-stacked-value-props) · [**Architecture**](#-architecture) · [**Quickstart**](#-quickstart) · [**Contracts**](#-smart-contract-suite) · [**Agent SDK**](#-the-agent-sdk--candenceagent-kit) · [**Dashboard**](#-telemetry--the-reliability-dashboard) · [**Docs**](#-documentation)
 
 </div>
 
@@ -28,7 +28,7 @@ The reactive path *is* the product. Everything else exists so a judge can verify
 
 ## 📖 Table of Contents
 
-- [The Thesis — why Cadence exists](#-the-thesis-why-cadence-exists)
+- [The Thesis — why Candence exists](#-the-thesis-why-candence-exists)
 - [Three stacked value props](#-three-stacked-value-props)
 - [How it works — the reactive flow](#-how-it-works--the-reactive-flow)
 - [Architecture](#-architecture)
@@ -38,7 +38,7 @@ The reactive path *is* the product. Everything else exists so a judge can verify
 - [Environment configuration](#-environment-configuration)
 - [Smart contract suite](#-smart-contract-suite)
 - [The non-custodial operator model](#-the-non-custodial-operator-model)
-- [The Agent SDK — `@cadence/agent-kit`](#-the-agent-sdk--cadenceagent-kit)
+- [The Agent SDK — `@candence/agent-kit`](#-the-agent-sdk--candenceagent-kit)
 - [Operational services](#-operational-services)
 - [Telemetry & the reliability dashboard](#-telemetry--the-reliability-dashboard)
 - [Frontend — the consumer arena](#-frontend--the-consumer-arena)
@@ -56,11 +56,11 @@ The reactive path *is* the product. Everything else exists so a judge can verify
 
 ---
 
-## 🎯 The Thesis — why Cadence exists
+## 🎯 The Thesis — why Candence exists
 
 Event Contracts today are **single-shot and single-player**: a human watches a price, forms a view, and places *one* order per window. DreamDEX ships something genuinely new — fully-collateralized, zero-fee binary Up/Down markets on BTC/ETH price over rolling 15-minute and 1-hour windows — but each window is still a solo, manual act.
 
-Cadence turns that into a continuously-running, **publicly-measurable agent arena** whose defining property is this:
+Candence turns that into a continuously-running, **publicly-measurable agent arena** whose defining property is this:
 
 > **The decision is triggered *onchain*, by Somnia's Reactivity precompile (`0x0100`) — not by an offchain cron.**
 
@@ -107,7 +107,7 @@ Anyone clones a top agent in **one signature** using DreamDEX's **operator model
 </td>
 <td valign="top">
 
-**[`@cadence/agent-kit`](./packages/agent-sdk)** lets any builder ship an agent against Event Contracts, and a live **dashboard** proves reliability + volume from onchain events *only*.
+**[`@candence/agent-kit`](./packages/agent-sdk)** lets any builder ship an agent against Event Contracts, and a live **dashboard** proves reliability + volume from onchain events *only*.
 
 *The ecosystem flywheel. More agents → more venue volume.*
 
@@ -126,7 +126,7 @@ A single window, end to end:
 3. **The subscriber fans out.** It iterates every registered `AgentVault` inside a **per-vault `try/catch`**, so one failing handler never blocks the others in the same block. Every outcome emits structured telemetry (`HandlerSucceeded` / `HandlerFailed` / `HandlerSkipped`) and bumps a matching onchain counter.
 4. **Each vault decides & places.** A vault (a) re-reads the market's **live onchain status** and gates on `Trading(1)`, (b) evaluates its strategy, (c) snaps price to the tick grid and size to the lot grid **as bigints**, (d) sets a mandatory `expireTimestampNs`, and (e) calls `placeOrderFor` for each owner — **fills settle directly to the owner's wallet.**
 5. **Risk is enforced onchain.** Before routing, `RiskEngine.commitSpend` enforces the per-owner spend cap; a drawdown breaker can auto-pause the vault.
-6. **Winnings are swept.** On a fixed cadence the vault redeems finalized positions by explicit outcome index (voids redeem both sides at 0.5 = break-even).
+6. **Winnings are swept.** On a fixed candence the vault redeems finalized positions by explicit outcome index (voids redeem both sides at 0.5 = break-even).
 7. **The dashboard reconciles.** Every number surfaced to a judge traces to one of those onchain events or counters — no mock data, ever.
 
 ```mermaid
@@ -196,7 +196,7 @@ flowchart TD
 ## 📁 Repository structure
 
 ```
-cadence/
+candence/
 ├── contracts/                      # Foundry — the reactive core (Solidity 0.8.24, via-IR)
 │   ├── ReactivitySubscriber.sol    # subscribes to 0x0100, routes callbacks, telemetry counters
 │   ├── AgentVault.sol              # operator (not custodian); Reactive + AI-assisted modes; claim sweep
@@ -204,12 +204,12 @@ cadence/
 │   ├── RiskEngine.sol              # onchain spend caps, drawdown breaker, timelocked pause
 │   ├── StrategyNFT.sol             # ERC-721 strategy config, soulbound-gated transfer
 │   ├── CopilotAttestor.sol         # onchain registry of AI signal correctness (EIP-191)
-│   ├── base/                       # Auth (Ownable2Step, Timelocked, ReentrancyGuard), CadenceMath, ERC721Min
-│   ├── interfaces/                 # IReactivity, IDreamDEX, ICadence
+│   ├── base/                       # Auth (Ownable2Step, Timelocked, ReentrancyGuard), CandenceMath, ERC721Min
+│   ├── interfaces/                 # IReactivity, IDreamDEX, ICandence
 │   └── test/                       # Foundry suite: invariant + isolation + integration + mocks
 ├── packages/
-│   ├── shared/                     # @cadence/shared — single source of truth: chains, pricing, ABIs, venue
-│   └── agent-sdk/                  # @cadence/agent-kit — publishable SDK for external builders
+│   ├── shared/                     # @candence/shared — single source of truth: chains, pricing, ABIs, venue
+│   └── agent-sdk/                  # @candence/agent-kit — publishable SDK for external builders
 ├── watcher/                        # WebSocket fallback watcher (offchain, FAILOVER only)
 ├── ai-copilot/                     # attested directional signal service (off the critical path)
 ├── apps/web/                       # Next.js 14 frontend: arena + dashboard + judge sandbox (one app)
@@ -259,7 +259,7 @@ pnpm doctor
 
 | # | Check | Why it matters |
 |---|---|---|
-| 1 | Network is `testnet` unless `CADENCE_ALLOW_MAINNET=1` | Prevents accidental mainnet actions |
+| 1 | Network is `testnet` unless `CANDENCE_ALLOW_MAINNET=1` | Prevents accidental mainnet actions |
 | 2 | RPC reachable **and** `chainId` matches | Catches a mis-set endpoint before any write |
 | 3 | Operator wallet present + native (STT/SOMI) balance | You can pay for gas |
 | 4 | Balance vs the **≥ 32 SOMI** subscription floor | A reactive subscription won't create without it |
@@ -312,8 +312,8 @@ Copy `.env.example` → `.env` and fill. **Never commit `.env`.**
 
 | Variable | Purpose |
 |---|---|
-| `CADENCE_NETWORK` | `testnet` (default) or `mainnet` |
-| `CADENCE_ALLOW_MAINNET` | Must be `1` to allow *any* mainnet action (the §0.4 guard) |
+| `CANDENCE_NETWORK` | `testnet` (default) or `mainnet` |
+| `CANDENCE_ALLOW_MAINNET` | Must be `1` to allow *any* mainnet action (the §0.4 guard) |
 | `TESTNET_RPC_URL` / `MAINNET_RPC_URL` | Chain RPC endpoints (defaults live in `packages/shared`) |
 | `TESTNET_REST_URL` / `TESTNET_WS_URL` | DreamDEX REST + public WS endpoints |
 | `DEPLOYER_PRIVATE_KEY` | Deploys contracts + seeds agents (0x + 64 hex) |
@@ -385,11 +385,11 @@ Onchain registry: `postSignal(windowKey, scoreBps, confidenceBps, issuedAt, sign
 | File | Contents |
 |---|---|
 | `base/Auth.sol` | `Ownable2Step`, `ReentrancyGuard`, `Timelocked` (queue/execute, `MIN_DELAY` 1h – `MAX_DELAY` 30d) |
-| `base/CadenceMath.sol` | `snapPrice`, `quantizeSize`, `notional`, `hasHeadroom` — the onchain bigint mirror of `pricing.ts` |
+| `base/CandenceMath.sol` | `snapPrice`, `quantizeSize`, `notional`, `hasHeadroom` — the onchain bigint mirror of `pricing.ts` |
 | `base/ERC721Min.sol` | Minimal, correct ERC-721 with a `_beforeTokenTransfer` hook |
 | `interfaces/IReactivity.sol` | The `0x0100` precompile + `IReactiveHandler` callback shape |
 | `interfaces/IDreamDEX.sol` | `IBinaryMarketsModule`, `IBinarySettlement`, `IOperatorPermissionsRegistry`, `OrderRequest`, `MarketStatus` |
-| `interfaces/ICadence.sol` | `IAgentVault`, `IRiskEngine`, `ICopilotAttestor`, `IStrategyNFT`, `VaultMode` |
+| `interfaces/ICandence.sol` | `IAgentVault`, `IRiskEngine`, `ICopilotAttestor`, `IStrategyNFT`, `VaultMode` |
 
 **Deploy order** (dependencies first): `RiskEngine → StrategyNFT → CopilotAttestor → ReactivitySubscriber → AgentVaultFactory`, then wiring: `risk.setFactory(factory)`, `nft.setMinter(factory)`, `factory.setSubscriber(subscriber)`.
 
@@ -397,7 +397,7 @@ Onchain registry: `postSignal(windowKey, scoreBps, confidenceBps, issuedAt, sign
 
 ## 🤝 The non-custodial operator model
 
-DreamDEX's real primitive is an **operator model**, and Cadence is built directly on it rather than on a fund-holding vault.
+DreamDEX's real primitive is an **operator model**, and Candence is built directly on it rather than on a fund-holding vault.
 
 - A user signs **one approval** in the `OperatorPermissionsRegistry` authorizing an `AgentVault` to call `placeOrderFor` / `cancelOrderFor` / `reduceOrderFor` **on their own wallet**.
 - The operator **never touches funds.** Deposits/withdrawals stay owner-only; every fill settles directly to the owner's wallet.
@@ -406,7 +406,7 @@ DreamDEX's real primitive is an **operator model**, and Cadence is built directl
 This is a strictly stronger non-custodial story than *"the vault holds delegated funds"*, and it changes what the vault is responsible for: **it enforces spend limits and strategy logic, not custody.**
 
 ```ts
-import { buildGrantCalldata, buildRevokeCalldata } from "@cadence/agent-kit";
+import { buildGrantCalldata, buildRevokeCalldata } from "@candence/agent-kit";
 
 // One signature onboards a follower — the entire "clone this agent" flow:
 const grants = buildGrantCalldata(agentOperatorAddress); // batch via multicall
@@ -420,9 +420,9 @@ const revokes = buildRevokeCalldata(agentOperatorAddress);
 
 ---
 
-## 🧰 The Agent SDK — `@cadence/agent-kit`
+## 🧰 The Agent SDK — `@candence/agent-kit`
 
-**Build reactive trading agents for DreamDEX Event Contracts without re-learning every gotcha the hard way.** This is the *exact* production-robustness surface Cadence runs its own agents on — intentionally small, dependency-light (viem + `@somnia-chain/markets-sdk` as peers), and strategy-agnostic.
+**Build reactive trading agents for DreamDEX Event Contracts without re-learning every gotcha the hard way.** This is the *exact* production-robustness surface Candence runs its own agents on — intentionally small, dependency-light (viem + `@somnia-chain/markets-sdk` as peers), and strategy-agnostic.
 
 ### The six gotchas it handles for you
 
@@ -441,7 +441,7 @@ const revokes = buildRevokeCalldata(agentOperatorAddress);
 import {
   reactiveMomentum, runOnce, loadTradableMarkets, pickCurrentWindow,
   type MarketsClient, type PlaceSender,
-} from "@cadence/agent-kit";
+} from "@candence/agent-kit";
 
 const client: MarketsClient = /* wraps exchange.client.* */ myClient;
 const sender: PlaceSender = /* wraps placeOrderFor + a viem walletClient */ mySender;
@@ -466,7 +466,7 @@ async function onPriceEvent(venueId: `0x${string}`, upPriceHistory: number[]) {
 ### Strategies are pure functions
 
 ```ts
-import { Outcome, type Strategy } from "@cadence/agent-kit";
+import { Outcome, type Strategy } from "@candence/agent-kit";
 
 const myStrategy: Strategy = (ctx) => {
   // ctx.market, ctx.upPriceHistory, ctx.signal (optional AI tilt), ctx.maxStake
@@ -489,7 +489,7 @@ No IO, no signing → trivially unit-testable and impossible to wire onto a cach
 | **runner** | `runOnce`, `RunnerConfig`, `PlaceSender` |
 
 ```bash
-npm i @cadence/agent-kit @somnia-chain/markets-sdk viem   # requires markets-sdk >= 0.25.0
+npm i @candence/agent-kit @somnia-chain/markets-sdk viem   # requires markets-sdk >= 0.25.0
 ```
 
 📖 Full SDK docs: [`packages/agent-sdk/README.md`](./packages/agent-sdk/README.md)
@@ -535,7 +535,7 @@ Each number names its own provenance (`last 24h · onchain`) so a judge can reco
 - ⚡ Average **latency** from price event → order landing (ms + block)
 - 🛟 **Fallback activations** — each recovered cleanly (a *distinct* metric)
 - ⏭️ **Skips** — windows deliberately skipped (insufficient SOMI / headroom)
-- 📈 **Volume** generated across all Cadence agents
+- 📈 **Volume** generated across all Candence agents
 - 🧠 **AI signal quality** — directional accuracy vs window resolution
 - ⛽ **SOMI balance / burn rate** for the subscriber and each vault
 - 💰 **Unclaimed winnings outstanding** — a leading indicator the sweeper stalled
@@ -568,7 +568,7 @@ The Foundry suite proves the reliability claims as **properties, not prose**:
 |---|---|
 | **`SpendInvariant.t.sol`** | *Fuzzing invariant:* across a random sequence of commit attempts, committed spend **never** exceeds the authorized cap — and the RiskEngine ledger always equals the handler's tally. Includes explicit at-cap-then-blocked boundary demonstrations. |
 | **`ReactiveIsolation.t.sol`** | One reverting vault emits `HandlerFailed` but **never blocks** healthy vaults in the same block; only the precompile can deliver; fallback triggers are counted separately; a paused subscriber rejects reactive events. |
-| **`Cadence.t.sol`** | End-to-end integration across the deployed system. |
+| **`Candence.t.sol`** | End-to-end integration across the deployed system. |
 | **`Base.t.sol`** | Shared harness — deploys the system, wires the price source, configures markets. |
 | **`test/mocks/MockDreamDEX.sol`** | A faithful mock of the Event Contracts surface for deterministic testing. |
 
@@ -585,14 +585,14 @@ function invariant_SpendNeverExceedsCap() public view {
 
 ## ⛽ SOMI / gas economics
 
-The subscriber's reactive handler is paid out of a **SOMI balance** held against the subscription. Somnia requires **≥ 32 SOMI at subscription creation**; every invocation draws gas from that balance. Cadence treats this as a first-class operational concern:
+The subscriber's reactive handler is paid out of a **SOMI balance** held against the subscription. Somnia requires **≥ 32 SOMI at subscription creation**; every invocation draws gas from that balance. Candence treats this as a first-class operational concern:
 
 - **Readout** — `gasBalance()` (subscriber) and `somiBalance()` (each vault) are surfaced live on the dashboard, alongside a computed burn rate.
 - **Alert** — a low-balance threshold lights a visible alert *before* exhaustion.
 - **Top-up** — `fundGas()` / `topUp()` are permissionless payable entry points; anyone (or a keeper) can extend runway.
 - **Exhaustion behavior** — on insufficient gas the handler **skips the window and emits `HandlerSkipped`**. It never reverts silently and never bricks. A skip is a recorded, explainable event.
 
-**Concretely:** at the 15-minute cadence there are 96 windows/day per interval. If an invocation costs *g* SOMI, daily burn per subscribed asset is `96 × g`. A 32-SOMI floor buys a predictable number of days of runway the dashboard displays directly — funding is a planned line item, not an outage waiting to happen. On mainnet the model carries over unchanged (addresses identical via CREATE3); only token decimals and venue id differ.
+**Concretely:** at the 15-minute candence there are 96 windows/day per interval. If an invocation costs *g* SOMI, daily burn per subscribed asset is `96 × g`. A 32-SOMI floor buys a predictable number of days of runway the dashboard displays directly — funding is a planned line item, not an outage waiting to happen. On mainnet the model carries over unchanged (addresses identical via CREATE3); only token decimals and venue id differ.
 
 ---
 
@@ -708,7 +708,7 @@ The rules this codebase is built to honor — and the reason a technical judge c
 <details>
 <summary><b>How is this different from a fast trading bot?</b></summary>
 
-A fast bot polls offchain and reacts within a second — architecturally identical to every bot ever written. Cadence's `ReactivitySubscriber` is **invoked by the chain itself** via the `0x0100` precompile when a subscribed price event fires. The trigger, the decision, and the placement all live on Somnia and are verifiable on the explorer. That's a categorically different claim.
+A fast bot polls offchain and reacts within a second — architecturally identical to every bot ever written. Candence's `ReactivitySubscriber` is **invoked by the chain itself** via the `0x0100` precompile when a subscribed price event fires. The trigger, the decision, and the placement all live on Somnia and are verifiable on the explorer. That's a categorically different claim.
 </details>
 
 <details>

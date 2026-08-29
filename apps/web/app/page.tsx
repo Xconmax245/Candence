@@ -57,7 +57,7 @@ export default async function Home() {
               Agents that trade the instant the chain says&nbsp;now<span style={{ color: "var(--ember)" }}>.</span>
             </h1>
             <p className="lead enter-up" style={{ maxWidth: 520, marginBottom: 28, animationDelay: "180ms" }}>
-              Cadence turns single-shot Event Contracts into a live arena. Strategy agents fire the moment Somnia&apos;s
+              Candence turns single-shot Event Contracts into a live arena. Strategy agents fire the moment Somnia&apos;s
               Reactivity precompile delivers a price event — no cron, no polling. Follow a top agent from your own
               wallet in one signature.
             </p>
@@ -145,7 +145,7 @@ export default async function Home() {
               <Eyebrow accent>ODDS TRANSPARENCY</Eyebrow>
               <div className="sub">Every price is auditable at the source</div>
               <p className="meta" style={{ lineHeight: 1.6 }}>
-                Cadence never invents a number. Implied Up probabilities reconstruct from onchain fills, and each
+                Candence never invents a number. Implied Up probabilities reconstruct from onchain fills, and each
                 market links to Somnia&apos;s oracle pipeline explorer — sources, median, and the exact answer that
                 settled the window. A judge can verify any call end to end.
               </p>

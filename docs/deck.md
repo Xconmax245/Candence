@@ -1,4 +1,4 @@
-# Cadence — Deck
+# Candence — Deck
 
 *Three slides. Stands alone without the video.*
 
@@ -16,7 +16,7 @@ Three things are missing:
 - **No way to follow a proven trader.** A great strategy helps exactly one wallet.
 - **No public proof of reliability.** There's no live, falsifiable record of who is actually performing.
 
-> The window rolls every hour, all day. That cadence is begging for agents. Nobody's built the arena.
+> The window rolls every hour, all day. That candence is begging for agents. Nobody's built the arena.
 
 ---
 
@@ -24,7 +24,7 @@ Three things are missing:
 
 ### Reactive agents that fire onchain, plus strategies you can clone.
 
-**Cadence's core claim is architectural, not cosmetic:** agents are triggered by Somnia's Reactivity precompile (`0x0100`), not by an offchain cron. When the oracle posts a price, the chain itself invokes our `ReactivitySubscriber`, which routes — with per-vault `try/catch` isolation — to each `AgentVault`, which snaps a tick-grid order and places it within the same reactive flow.
+**Candence's core claim is architectural, not cosmetic:** agents are triggered by Somnia's Reactivity precompile (`0x0100`), not by an offchain cron. When the oracle posts a price, the chain itself invokes our `ReactivitySubscriber`, which routes — with per-vault `try/catch` isolation — to each `AgentVault`, which snaps a tick-grid order and places it within the same reactive flow.
 
 ```
 MarkPriceUpdated (0x0100)  →  ReactivitySubscriber  →  AgentVault.onEvent  →  placeOrder
@@ -42,11 +42,11 @@ MarkPriceUpdated (0x0100)  →  ReactivitySubscriber  →  AgentVault.onEvent  �
 
 ### Copy-trading + an open SDK turn one good agent into ecosystem volume.
 
-**Copy-trading, one signature, non-custodial.** Cadence is built on DreamDEX's **operator model**: a user grants an agent permission to place orders *on their own wallet*. Funds and fills never leave that wallet; the grant is revocable instantly. Cloning a top agent is a single approval — no deposits, no custody, no jargon.
+**Copy-trading, one signature, non-custodial.** Candence is built on DreamDEX's **operator model**: a user grants an agent permission to place orders *on their own wallet*. Funds and fills never leave that wallet; the grant is revocable instantly. Cloning a top agent is a single approval — no deposits, no custody, no jargon.
 
-**Open Agent SDK.** [`@cadence/agent-kit`](../packages/agent-sdk) lets any builder ship their own agent against Event Contracts, with every hard-won gotcha (bigint tick-snapping, live-status gating, mandatory expiry, claim sweeping) baked in. More agents → more windows traded → measurable volume for the venue.
+**Open Agent SDK.** [`@candence/agent-kit`](../packages/agent-sdk) lets any builder ship their own agent against Event Contracts, with every hard-won gotcha (bigint tick-snapping, live-status gating, mandatory expiry, claim sweeping) baked in. More agents → more windows traded → measurable volume for the venue.
 
-**Public reliability dashboard.** A live board proves reactive success rate, event→order latency, fallback recoveries, per-division win rate/ROI, AI signal quality, and Cadence-generated trading volume — every number sourced from onchain events and tagged with its own provenance.
+**Public reliability dashboard.** A live board proves reactive success rate, event→order latency, fallback recoveries, per-division win rate/ROI, AI signal quality, and Candence-generated trading volume — every number sourced from onchain events and tagged with its own provenance.
 
 ---
 

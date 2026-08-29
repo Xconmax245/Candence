@@ -3,7 +3,7 @@ import { CloneAgent } from "@/components/CloneAgent";
 import { Reveal } from "@/components/motion";
 import { shortHash, pct } from "@/lib/format";
 import { getAgents, getLiveWindows, networkInfo } from "@/lib/onchain";
-import { DREAMDEX_CORE } from "@cadence/shared";
+import { DREAMDEX_CORE } from "@candence/shared";
 import { ErrorState } from "@/components/ui";
 
 

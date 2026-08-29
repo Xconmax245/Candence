@@ -1,5 +1,5 @@
 /**
- * @cadence/agent-kit — bigint-safe pricing & sizing.
+ * @candence/agent-kit — bigint-safe pricing & sizing.
  *
  * The single most dangerous class of bug on Event Contracts: floating-point
  * prices on 18-decimal venues revert with `InvalidPrice`. `toFixed(18)` produces

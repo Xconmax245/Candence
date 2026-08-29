@@ -1,5 +1,5 @@
 /**
- * @cadence/agent-kit — the strategy interface and a reference reactive strategy.
+ * @candence/agent-kit — the strategy interface and a reference reactive strategy.
  *
  * A Strategy is a pure function from live market state to an optional Decision.
  * It performs NO IO and signs NOTHING — the runner does the status-gating,

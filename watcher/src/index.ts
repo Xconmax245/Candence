@@ -1,5 +1,5 @@
 /**
- * Cadence — WebSocket Fallback Watcher (DIRECTIVE §4.5).
+ * Candence — WebSocket Fallback Watcher (DIRECTIVE §4.5).
  *
  * ┌─────────────────────────────────────────────────────────────────────────┐
  * │ THIS IS NOT THE DECISION PATH.                                            │
@@ -49,9 +49,9 @@ import {
   fetchBinaryMarketsRest,
   encodeReactivePayload,
   readDeploymentAddresses,
-  CadenceAbi,
+  CandenceAbi,
   type RestMarket,
-} from "@cadence/shared";
+} from "@candence/shared";
 
 const GRACE_MS = Number(process.env.WATCHER_GRACE_MS ?? 4000);
 const BACKOFF_MAX_MS = 30_000;
@@ -96,7 +96,7 @@ async function main(): Promise<void> {
 
   // eslint-disable-next-line no-console
   console.log(
-    `\nCadence fallback watcher (FAILOVER ONLY — not the decision path)\n` +
+    `\nCandence fallback watcher (FAILOVER ONLY — not the decision path)\n` +
       `  network:    ${net.name} (${net.chainId})\n` +
       `  subscriber: ${subscriber}\n` +
       `  watcher:    ${account.address}\n` +
@@ -160,7 +160,7 @@ async function main(): Promise<void> {
       });
       const hash = await wallet.writeContract({
         address: subscriber,
-        abi: CadenceAbi.reactivitySubscriberAbi as unknown as Abi,
+        abi: CandenceAbi.reactivitySubscriberAbi as unknown as Abi,
         functionName: "submitFallbackTrigger",
         args: [p.marketId, data],
         account,

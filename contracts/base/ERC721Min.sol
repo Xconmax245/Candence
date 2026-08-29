@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 /**
  * @title ERC721Min
  * @notice A compact, correct ERC-721 base (metadata + safeTransfer receiver
- *         check) so Cadence builds with zero external installs. Transfer hooks
+ *         check) so Candence builds with zero external installs. Transfer hooks
  *         are exposed so StrategyNFT can enforce its soulbound-by-default gate
  *         (DIRECTIVE §4.4) without pulling a full library.
  */

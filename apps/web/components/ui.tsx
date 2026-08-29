@@ -1,5 +1,5 @@
 /**
- * Cadence design-system primitives (DIRECTIVE §11).
+ * Candence design-system primitives (DIRECTIVE §11).
  *
  * Thin, semantic wrappers over the verbatim CSS classes in globals.css so the
  * card/chip/stat/button anatomy is reused exactly (§11.10) and can't drift.

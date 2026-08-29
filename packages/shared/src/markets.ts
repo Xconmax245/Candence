@@ -1,5 +1,5 @@
 /**
- * Cadence — market discovery & status gating (DIRECTIVE §1.2, §1.3, §4.6).
+ * Candence — market discovery & status gating (DIRECTIVE §1.2, §1.3, §4.6).
  *
  * Hard rules enforced here:
  *  - Every write is gated on LIVE onchain status === Trading(1). The indexer lags
@@ -17,7 +17,7 @@
 import { MarketStatus, type Asset, type BinaryMarket, type IntervalSec } from "./types.js";
 
 /**
- * Minimal structural interface of the markets-sdk surfaces Cadence relies on.
+ * Minimal structural interface of the markets-sdk surfaces Candence relies on.
  * Require markets-sdk ≥ 0.25.0 (DIRECTIVE §1.4) — older versions are broken on
  * reads and lack `amountToPrecision`.
  */
@@ -50,7 +50,7 @@ function normalizeAsset(a: string): Asset {
   const up = a.toUpperCase();
   if (up.includes("BTC")) return "BTC";
   if (up.includes("ETH")) return "ETH";
-  // Cadence only trades the BTC/ETH hero path (§8); anything else is filtered out upstream.
+  // Candence only trades the BTC/ETH hero path (§8); anything else is filtered out upstream.
   return up as Asset;
 }
 

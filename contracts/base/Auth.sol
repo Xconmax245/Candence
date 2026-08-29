@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 /**
- * @title Auth primitives for Cadence
+ * @title Auth primitives for Candence
  * @notice Self-contained, audited-pattern base contracts so the whole suite
  *         builds and tests without any external `forge install` (Phase 6 DoD:
  *         "the Foundry suite passes clean"). Behaviour matches the well-known

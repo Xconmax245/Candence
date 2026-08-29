@@ -1,12 +1,12 @@
 /**
- * Cadence — deploy.ts (DIRECTIVE §7 Phase 1/3, §3).
+ * Candence — deploy.ts (DIRECTIVE §7 Phase 1/3, §3).
  *
- * Deploys the full Cadence contract suite to the selected network using the
+ * Deploys the full Candence contract suite to the selected network using the
  * compiled Foundry artifacts (creation bytecode) and viem. Then wires the
  * cross-contract permissions and persists every address to
  * `deployments/<network>.json` with explorer links.
  *
- * SAFETY (§0.4): testnet by default; mainnet refused unless CADENCE_ALLOW_MAINNET=1.
+ * SAFETY (§0.4): testnet by default; mainnet refused unless CANDENCE_ALLOW_MAINNET=1.
  * Run `pnpm doctor` first. Never deploys with staged data. Real writes only.
  *
  * Deploy order (dependencies first):
@@ -51,8 +51,8 @@ function requirePk(): Hex {
 
 async function main(): Promise<void> {
   const net = activeNetwork();
-  if (net.name === "mainnet" && process.env.CADENCE_ALLOW_MAINNET !== "1") {
-    throw new Error("Refusing mainnet deploy without CADENCE_ALLOW_MAINNET=1 (§0.4).");
+  if (net.name === "mainnet" && process.env.CANDENCE_ALLOW_MAINNET !== "1") {
+    throw new Error("Refusing mainnet deploy without CANDENCE_ALLOW_MAINNET=1 (§0.4).");
   }
 
   const existing = readDeployment(net.name);
@@ -72,7 +72,7 @@ async function main(): Promise<void> {
   const wallet = createWalletClient({ account, chain, transport });
 
   // eslint-disable-next-line no-console
-  console.log(`\nCadence deploy → ${net.name} (chainId ${net.chainId})`);
+  console.log(`\nCandence deploy → ${net.name} (chainId ${net.chainId})`);
   // eslint-disable-next-line no-console
   console.log(`deployer: ${account.address}\n`);
 

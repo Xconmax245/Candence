@@ -1,8 +1,8 @@
 {
-  "name": "cadence",
+  "name": "candence",
   "version": "0.1.0",
   "private": true,
-  "description": "Cadence — a fully onchain-reactive agent arena for DreamDEX Event Contracts on Somnia.",
+  "description": "Candence — a fully onchain-reactive agent arena for DreamDEX Event Contracts on Somnia.",
   "license": "MIT",
   "packageManager": "pnpm@9.7.0",
   "engines": {
@@ -13,11 +13,11 @@
     "deploy": "tsx scripts/deploy.ts",
     "seed": "tsx scripts/seed-agents.ts",
     "build": "pnpm -r --filter=./packages/* --filter=./apps/* build",
-    "dev:web": "pnpm --filter @cadence/web dev",
-    "dev:dashboard": "echo \"Dashboard is served at http://localhost:3000/dashboard — run dev:web first\" && pnpm --filter @cadence/web dev",
+    "dev:web": "pnpm --filter @candence/web dev",
+    "dev:dashboard": "echo \"Dashboard is served at http://localhost:3000/dashboard — run dev:web first\" && pnpm --filter @candence/web dev",
 
-    "watcher": "pnpm --filter @cadence/watcher start",
-    "copilot": "pnpm --filter @cadence/ai-copilot start",
+    "watcher": "pnpm --filter @candence/watcher start",
+    "copilot": "pnpm --filter @candence/ai-copilot start",
     "contracts:build": "cd contracts && forge build",
     "contracts:test": "cd contracts && forge test -vvv",
     "lint": "pnpm -r lint",

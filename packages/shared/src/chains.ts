@@ -1,5 +1,5 @@
 /**
- * Cadence — chain configuration.
+ * Candence — chain configuration.
  *
  * Shannon testnet (50312) is the default target until explicitly told otherwise
  * (MASTER DIRECTIVE §0.4). Mainnet (5031) config is present but must never be
@@ -100,9 +100,9 @@ export const NETWORKS: Record<NetworkName, NetworkConfig> = {
 
 /** Resolve the active network from env, defaulting to testnet (DIRECTIVE §0.4). */
 export function activeNetwork(): NetworkConfig {
-  const sel = (ENV("CADENCE_NETWORK", "testnet") as NetworkName) ?? "testnet";
+  const sel = (ENV("CANDENCE_NETWORK", "testnet") as NetworkName) ?? "testnet";
   const cfg = NETWORKS[sel];
-  if (!cfg) throw new Error(`Unknown CADENCE_NETWORK "${sel}" (expected testnet|mainnet)`);
+  if (!cfg) throw new Error(`Unknown CANDENCE_NETWORK "${sel}" (expected testnet|mainnet)`);
   return cfg;
 }
 

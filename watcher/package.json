@@ -1,16 +1,16 @@
 {
-  "name": "@cadence/watcher",
+  "name": "@candence/watcher",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Cadence WebSocket fallback watcher — offchain failover ONLY, never the decision path (DIRECTIVE §4.5).",
+  "description": "Candence WebSocket fallback watcher — offchain failover ONLY, never the decision path (DIRECTIVE §4.5).",
   "scripts": {
     "start": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "echo \"(lint) @cadence/watcher\""
+    "lint": "echo \"(lint) @candence/watcher\""
   },
   "dependencies": {
-    "@cadence/shared": "workspace:*",
+    "@candence/shared": "workspace:*",
     "@somnia-chain/markets-sdk": "^0.25.0",
     "dotenv": "^16.4.5",
     "viem": "^2.17.0",

@@ -1,17 +1,17 @@
 {
-  "name": "@cadence/ai-copilot",
+  "name": "@candence/ai-copilot",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Cadence AI copilot — attested, window-aligned directional signals. NEVER on the reactive critical path (DIRECTIVE §5).",
+  "description": "Candence AI copilot — attested, window-aligned directional signals. NEVER on the reactive critical path (DIRECTIVE §5).",
   "scripts": {
     "start": "tsx src/index.ts",
     "signal:once": "tsx src/cli-once.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "echo \"(lint) @cadence/ai-copilot\""
+    "lint": "echo \"(lint) @candence/ai-copilot\""
   },
   "dependencies": {
-    "@cadence/shared": "workspace:*",
+    "@candence/shared": "workspace:*",
     "@somnia-chain/markets-sdk": "^0.25.0",
     "dotenv": "^16.4.5",
     "viem": "^2.17.0"

@@ -1,5 +1,5 @@
 {
-  "name": "@cadence/shared",
+  "name": "@candence/shared",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "echo \"(lint) @cadence/shared\""
+    "lint": "echo \"(lint) @candence/shared\""
   },
   "dependencies": {
     "@somnia-chain/markets-sdk": "^0.25.0",

@@ -5,7 +5,7 @@ import { networkInfo, type CallFeedItem } from "@/lib/onchain";
 
 /**
  * Live call feed (DIRECTIVE §4, Phase 4): the most recent orders placed by
- * Cadence agents, each linking to the real transaction on the explorer so a
+ * Candence agents, each linking to the real transaction on the explorer so a
  * judge can verify it. No item exists here that isn't an onchain OrderPlaced.
  */
 export function CallFeed({ items }: { items: CallFeedItem[] }) {

@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 /**
- * @title ICadence
- * @notice Internal interfaces between Cadence's own contracts. Keeps the vault,
+ * @title ICandence
+ * @notice Internal interfaces between Candence's own contracts. Keeps the vault,
  *         risk engine, attestor, and subscriber loosely coupled.
  */
 

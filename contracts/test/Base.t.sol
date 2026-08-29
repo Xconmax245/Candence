@@ -8,16 +8,16 @@ import {AgentVault} from "../AgentVault.sol";
 import {AgentVaultFactory} from "../AgentVaultFactory.sol";
 import {StrategyNFT} from "../StrategyNFT.sol";
 import {CopilotAttestor} from "../CopilotAttestor.sol";
-import {VaultMode} from "../interfaces/ICadence.sol";
+import {VaultMode} from "../interfaces/ICandence.sol";
 import {MarketStatus} from "../interfaces/IDreamDEX.sol";
 import {MockBinaryMarketsModule, MockBinarySettlement} from "./mocks/MockDreamDEX.sol";
 
 /**
- * @title CadenceBaseTest
- * @notice Shared deployment + helpers for the Cadence Foundry suite. Wires the
+ * @title CandenceBaseTest
+ * @notice Shared deployment + helpers for the Candence Foundry suite. Wires the
  *         full system exactly as `deploy.ts` does, against the mock venue.
  */
-contract CadenceBaseTest is Test {
+contract CandenceBaseTest is Test {
     // Actors
     address internal admin = makeAddr("admin");
     address internal deployer = makeAddr("deployer"); // house-agent operator wallet

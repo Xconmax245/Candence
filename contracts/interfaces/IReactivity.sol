@@ -6,7 +6,7 @@ pragma solidity ^0.8.24;
  * @notice Interface to Somnia's Reactivity precompile at 0x0100 and the callback
  *         shape a subscriber must implement (DIRECTIVE §1.3, §4.1, §10).
  *
- * Cadence's entire thesis: agent decisions are triggered by this precompile
+ * Candence's entire thesis: agent decisions are triggered by this precompile
  * delivering a price event, NOT by an offchain cron (DIRECTIVE §0.2). The
  * subscription is created onchain; gas for every invocation is drawn from the
  * handler owner's SOMI balance (≥ 32 SOMI required at subscription creation,

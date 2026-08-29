@@ -1,5 +1,5 @@
 /**
- * Cadence AI copilot — onchain attestation posting (DIRECTIVE §5, §6).
+ * Candence AI copilot — onchain attestation posting (DIRECTIVE §5, §6).
  *
  * Takes a computed signal, produces the EIP-191 attestation via the shared
  * `attestSignal` (whose digest matches CopilotAttestor.sol byte-for-byte), and
@@ -26,11 +26,11 @@ import {
   viemChainFor,
   attestSignal,
   postSignalArgs,
-  CadenceAbi,
+  CandenceAbi,
   type Asset,
   type IntervalSec,
   type AttestedSignal,
-} from "@cadence/shared";
+} from "@candence/shared";
 import type { SignalOutput } from "./signal.js";
 
 export interface PostContext {
@@ -69,7 +69,7 @@ export async function attestAndPost(
 
     const hash = await wallet.writeContract({
       address: ctx.attestor,
-      abi: CadenceAbi.copilotAttestorAbi as unknown as Abi,
+      abi: CandenceAbi.copilotAttestorAbi as unknown as Abi,
       functionName: "postSignal",
       args: postSignalArgs(attested),
       account: ctx.signer,
@@ -97,7 +97,7 @@ export async function gradeWindow(
   try {
     const hash = await wallet.writeContract({
       address: ctx.attestor,
-      abi: CadenceAbi.copilotAttestorAbi as unknown as Abi,
+      abi: CandenceAbi.copilotAttestorAbi as unknown as Abi,
       functionName: "gradeSignal",
       args: [windowKey, correct],
       account: ctx.signer,

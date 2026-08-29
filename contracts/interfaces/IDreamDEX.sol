@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 /**
  * @title IDreamDEX
- * @notice The subset of DreamDEX Event Contracts surfaces Cadence integrates with
+ * @notice The subset of DreamDEX Event Contracts surfaces Candence integrates with
  *         (DIRECTIVE §1). This is deliberately the OPERATOR model (§1.6), not a
  *         custody model:
  *
@@ -16,7 +16,7 @@ pragma solidity ^0.8.24;
  *
  *         Selectors (§1.6): place 0x80054449, cancel 0xe37b444b, reduce 0x364c2587.
  *
- *         Cadence's AgentVault is a registered operator. Spend caps are NOT
+ *         Candence's AgentVault is a registered operator. Spend caps are NOT
  *         enforced by the registry — the vault's own RiskEngine enforces them
  *         (§1.6, §4.4).
  */

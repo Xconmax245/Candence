@@ -30,7 +30,7 @@ importers:
 
   ai-copilot:
     dependencies:
-      '@cadence/shared':
+      '@candence/shared':
         specifier: workspace:*
         version: link:../packages/shared
       '@somnia-chain/markets-sdk':
@@ -55,7 +55,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@cadence/shared':
+      '@candence/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       framer-motion:
@@ -132,7 +132,7 @@ importers:
 
   watcher:
     dependencies:
-      '@cadence/shared':
+      '@candence/shared':
         specifier: workspace:*
         version: link:../packages/shared
       '@somnia-chain/markets-sdk':

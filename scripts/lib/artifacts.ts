@@ -1,5 +1,5 @@
 /**
- * Cadence — Foundry artifact loader + deployment persistence (shared by
+ * Candence — Foundry artifact loader + deployment persistence (shared by
  * deploy.ts and seed-agents.ts).
  *
  * We deploy with viem using the compiled Foundry artifacts in `contracts/out`.

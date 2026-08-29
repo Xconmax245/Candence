@@ -1,5 +1,5 @@
 /**
- * @cadence/shared — the single source of truth for chain config, protocol types,
+ * @candence/shared — the single source of truth for chain config, protocol types,
  * bigint-safe pricing, live venue resolution, market gating, and AI attestation.
  *
  * Every other workspace (scripts, watcher, ai-copilot, agent-sdk, web, dashboard)
@@ -15,6 +15,6 @@ export * from "./rest.js";
 export * from "./payload.js";
 export * from "./deployments.js";
 export * from "./attest.js";
-export * as CadenceAbi from "./abi/index.js";
+export * as CandenceAbi from "./abi/index.js";
 
 

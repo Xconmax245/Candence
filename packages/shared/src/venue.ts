@@ -1,5 +1,5 @@
 /**
- * Cadence — live venue resolution (DIRECTIVE §1.5, gotcha #8).
+ * Candence — live venue resolution (DIRECTIVE §1.5, gotcha #8).
  *
  * Venue IDs MOVE over time and differ between testnet and mainnet. Hardcoding
  * one is gotcha #8 — treat the value in `chains.ts` as a *starting point* only.

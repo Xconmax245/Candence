@@ -1,5 +1,5 @@
 /**
- * @cadence/agent-kit — shared types for the Event Contracts surface.
+ * @candence/agent-kit — shared types for the Event Contracts surface.
  */
 import type { Address, Hex } from "viem";
 

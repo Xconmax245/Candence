@@ -166,7 +166,7 @@ export default async function Dashboard() {
               <ProofCard
                 value={vol}
                 suffix=" orders"
-                sentence="Total event contract volume generated across all Cadence agents (human ticket proxy)."
+                sentence="Total event contract volume generated across all Candence agents (human ticket proxy)."
                 provenance="OrderPlaced · onchain"
                 delay={320}
               />

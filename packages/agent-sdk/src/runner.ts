@@ -1,5 +1,5 @@
 /**
- * @cadence/agent-kit — the agent runner.
+ * @candence/agent-kit — the agent runner.
  *
  * Ties a pure Strategy to the live chain with EVERY safety gate applied in the
  * right order, so a strategy author cannot accidentally skip one:
@@ -14,7 +14,7 @@
  *   8. Verify the receipt (SDK writes skip simulation).
  *
  * This is deliberately the ONLY path to placement in the kit. The reactive
- * decision *trigger* (the 0x0100 precompile) lives in Cadence's contracts; this
+ * decision *trigger* (the 0x0100 precompile) lives in Candence's contracts; this
  * runner is what an offchain agent or the operator loop calls once triggered.
  */
 import type { Address, Hex } from "viem";

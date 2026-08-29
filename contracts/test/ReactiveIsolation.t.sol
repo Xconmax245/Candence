@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {CadenceBaseTest} from "./Base.t.sol";
+import {CandenceBaseTest} from "./Base.t.sol";
 import {AgentVault} from "../AgentVault.sol";
 import {ReactivitySubscriber} from "../ReactivitySubscriber.sol";
-import {VaultMode, IAgentVault} from "../interfaces/ICadence.sol";
+import {VaultMode, IAgentVault} from "../interfaces/ICandence.sol";
 
 /// @dev A vault that always reverts on trigger — stands in for a crashed/buggy
 ///      or SOMI-starved handler to prove per-trigger isolation (§4.1).
@@ -29,7 +29,7 @@ contract RevertingVault is IAgentVault {
  *         dispatched in the same block. This is a core reliability claim behind the
  *         dashboard (§6) and the fallback story (§4.5).
  */
-contract ReactiveIsolationTest is CadenceBaseTest {
+contract ReactiveIsolationTest is CandenceBaseTest {
     function setUp() public {
         _deploySystem();
         // Wire the price source FIRST (it advances time past the timelock), then

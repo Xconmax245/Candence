@@ -1,5 +1,5 @@
 /**
- * @cadence/agent-kit — the operator (session-key) model for non-custodial
+ * @candence/agent-kit — the operator (session-key) model for non-custodial
  * copy-trading.
  *
  * DreamDEX's real primitive is an OPERATOR model, not a vault that holds
@@ -9,7 +9,7 @@
  * always. Authorization lives in the OperatorPermissionsRegistry, is grantable
  * per selector (globally or per-pool), and is revocable immediately by the owner.
  *
- * Spend caps are NOT enforced by the registry — the caller (Cadence's vault, or
+ * Spend caps are NOT enforced by the registry — the caller (Candence's vault, or
  * your own agent) must enforce them. This module builds the grant/revoke calldata
  * and the `*For` order calldata; enforce your own spend limit before signing.
  */

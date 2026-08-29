@@ -1,5 +1,5 @@
 /**
- * Cadence AI copilot — directional signal computation (DIRECTIVE §5).
+ * Candence AI copilot — directional signal computation (DIRECTIVE §5).
  *
  * Produces a directional score in [-1, 1] (>0 favors Up) and a confidence in
  * [0, 1] for a given window, from REAL market data only (no mock data, §3):
@@ -16,7 +16,7 @@
  * The score is deterministic given its inputs so the same window always attests
  * consistently. All inputs are fetched live; nothing here is fabricated.
  */
-import type { Asset, IntervalSec } from "@cadence/shared";
+import type { Asset, IntervalSec } from "@candence/shared";
 
 export interface Candle {
   openSec: number;

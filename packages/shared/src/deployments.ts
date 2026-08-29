@@ -1,5 +1,5 @@
 /**
- * Cadence — deployment address reader (shared, Node-only).
+ * Candence — deployment address reader (shared, Node-only).
  *
  * Reads `deployments/<network>.json` (written by scripts/deploy.ts) and returns
  * the contract address map. This is imported by Node-side consumers only

@@ -1,5 +1,5 @@
 /**
- * Cadence — REST market snapshot (shared, isomorphic).
+ * Candence — REST market snapshot (shared, isomorphic).
  *
  * A lightweight read of the DreamDEX REST `/markets` surface, used by the
  * failover watcher and the dashboard for discovery + display. This is NEVER the

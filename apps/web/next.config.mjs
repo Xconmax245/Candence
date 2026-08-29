@@ -1,16 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // @cadence/shared is a workspace TS package consumed directly.
-  transpilePackages: ["@cadence/shared"],
+  // @candence/shared is a workspace TS package consumed directly.
+  transpilePackages: ["@candence/shared"],
   experimental: {
     // Server Actions + RSC data reads hit chain/REST directly (never mock data).
     serverComponentsExternalPackages: ["viem"],
   },
   webpack(config) {
-    // @cadence/shared is authored as ESM-correct TypeScript: its internal imports
+    // @candence/shared is authored as ESM-correct TypeScript: its internal imports
     // carry explicit ".js" extensions (required by the Node/tsx consumers —
-    // watcher, ai-copilot, scripts — and for publishing @cadence/agent-kit).
+    // watcher, ai-copilot, scripts — and for publishing @candence/agent-kit).
     // Webpack must resolve those ".js" specifiers to the real ".ts"/".tsx" source.
     // This is the standard extensionAlias fix; it changes nothing for the other
     // consumers, it only teaches webpack what tsc already does under Bundler

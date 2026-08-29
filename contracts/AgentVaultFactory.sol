@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {Ownable2Step} from "./base/Auth.sol";
 import {AgentVault} from "./AgentVault.sol";
-import {VaultMode, IRiskEngine, IStrategyNFT} from "./interfaces/ICadence.sol";
+import {VaultMode, IRiskEngine, IStrategyNFT} from "./interfaces/ICandence.sol";
 
 /**
  * @title AgentVaultFactory

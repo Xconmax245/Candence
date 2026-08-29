@@ -1,5 +1,5 @@
 /**
- * @cadence/agent-kit — the claim / settlement sweeper.
+ * @candence/agent-kit — the claim / settlement sweeper.
  *
  * Winnings on Event Contracts are CLAIMED, not auto-converted. An agent that
  * never redeems has capital stranded across dozens of finalized markets while

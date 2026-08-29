@@ -1,5 +1,5 @@
 /**
- * Cadence — `doctor.ts` preflight (DIRECTIVE §0.4, §7 Phase 0, §12 immediate action).
+ * Candence — `doctor.ts` preflight (DIRECTIVE §0.4, §7 Phase 0, §12 immediate action).
  *
  * "Everything must run on testnet first, with real funds only after doctor.ts-style
  *  verification." This is that gate. It confirms — against the LIVE chain/REST, never
@@ -7,7 +7,7 @@
  *  is exercised. It NEVER sends a transaction; it only reads and reports.
  *
  * Checks, in order (a red on any hard check exits non-zero):
- *   1. Network selection is testnet unless CADENCE_ALLOW_MAINNET=1 (§0.4).
+ *   1. Network selection is testnet unless CANDENCE_ALLOW_MAINNET=1 (§0.4).
  *   2. RPC reachable + chainId matches the selected network.
  *   3. Operator wallet present, and its native (STT/SOMI) balance for gas.
  *   4. SOMI headroom vs the ≥32 threshold a reactive subscription needs (§10).
@@ -52,12 +52,12 @@ const SUBSCRIPTION_MIN_SOMI = 32n * 10n ** 18n; // §10: ≥32 SOMI at subscript
 async function main(): Promise<void> {
   const net = activeNetwork();
   // eslint-disable-next-line no-console
-  console.log(`\nCadence doctor — network "${net.name}" (chainId ${net.chainId})`);
+  console.log(`\nCandence doctor — network "${net.name}" (chainId ${net.chainId})`);
 
   // 1. Network guard (§0.4) ---------------------------------------------------
   section("network");
-  if (net.name === "mainnet" && process.env.CADENCE_ALLOW_MAINNET !== "1") {
-    line("fail", "mainnet selected without CADENCE_ALLOW_MAINNET=1", "refusing (§0.4)");
+  if (net.name === "mainnet" && process.env.CANDENCE_ALLOW_MAINNET !== "1") {
+    line("fail", "mainnet selected without CANDENCE_ALLOW_MAINNET=1", "refusing (§0.4)");
   } else {
     line("ok", `target is ${net.name}`);
   }
