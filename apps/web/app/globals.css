@@ -1,0 +1,589 @@
+/**
+ * Cadence design system (DIRECTIVE §11). Pixel-accurate token/spacing/type scale.
+ * Every value here is reused verbatim from the approved source design; only the
+ * accent hue and the product content differ (§11.10).
+ */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --obsidian: #09090b;
+  --graphite: #18181b;
+  --slate: #27272a;
+  --iron: #3f3f46;
+  --steel: #52525b;
+  --fog: #71717a;
+  --ash: #a1a1aa;
+  --mist: #d4d4d8;
+  --cloud: #ececee;
+  --paper: #f4f4f5;
+  --snow: #ffffff;
+
+  --ember: #ff5a00;
+  --ember-soft: #fff1e9;
+
+  --sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --r-card: 32px;
+  --r-ctrl: 14px;
+  --r-badge: 12px;
+  --r-pill: 999px;
+
+  --max: 1320px;
+  --section: 80px;
+  --pad-card: 28px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--obsidian);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--ember);
+  color: var(--snow);
+}
+
+/* ── Typography scale (§11.2) ── */
+.display {
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.h-lg {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+.h {
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.sub {
+  font-size: 20px;
+  font-weight: 500;
+}
+.lead {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--steel);
+}
+.meta {
+  font-size: 12px;
+  color: var(--fog);
+}
+.mono {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+}
+.eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+/* ── Layout shell (§11.3) ── */
+.shell {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 40px;
+}
+.section {
+  padding: var(--section) 0;
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(244, 244, 245, 0.82);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--cloud);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.nav-links {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+.brand {
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+.brand-dot {
+  color: var(--ember);
+}
+
+/* ── Buttons (§11.4) ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--r-ctrl);
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn-dark {
+  background: var(--obsidian);
+  color: var(--snow);
+}
+.btn-dark:hover {
+  background: #000;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--mist);
+  border-radius: var(--r-pill);
+  color: var(--obsidian);
+}
+.btn-ghost:hover {
+  border-color: var(--obsidian);
+  color: var(--obsidian);
+}
+.btn-neutral {
+  background: var(--snow);
+  border: 1px solid var(--cloud);
+  color: var(--obsidian);
+}
+.btn-neutral:hover {
+  border-color: var(--mist);
+}
+.btn-pill {
+  border-radius: var(--r-pill);
+}
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+/* ── Cards, chips, stats (§11.5) ── */
+.card {
+  background: var(--snow);
+  border: 1px solid var(--cloud);
+  border-radius: var(--r-card);
+  padding: var(--pad-card);
+}
+.card-tight {
+  border-radius: 20px;
+  padding: 20px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--r-badge);
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.chip-ember {
+  background: var(--ember);
+  color: var(--snow);
+}
+.chip-ember-soft {
+  background: var(--ember-soft);
+  color: var(--ember);
+}
+.chip-ember-outline {
+  background: transparent;
+  border-color: var(--ember);
+  color: var(--ember);
+}
+.chip-ink {
+  background: transparent;
+  border-color: var(--obsidian);
+  color: var(--obsidian);
+}
+.chip-dashed {
+  background: transparent;
+  border: 1px dashed var(--ash);
+  color: var(--fog);
+}
+.chip-neutral {
+  background: var(--paper);
+  border-color: var(--cloud);
+  color: var(--steel);
+}
+.stat-num {
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 13px;
+  color: var(--steel);
+  margin-top: 6px;
+}
+
+/* ── Dark mechanism band (§11.6) ── */
+.band-dark {
+  background: var(--graphite);
+  color: var(--paper);
+  border-radius: var(--r-card);
+  padding: 56px;
+}
+.band-dark .lead,
+.band-dark .meta {
+  color: var(--ash);
+}
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.flow-node {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  border: 1px solid var(--slate);
+  color: var(--paper);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.flow-node-accent {
+  color: var(--ember);
+  border-color: var(--ember);
+}
+.flow-arrow {
+  color: var(--fog);
+}
+
+/* ── Interaction/state (§11.8) ── */
+.skeleton {
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--cloud) 25%, var(--mist) 37%, var(--cloud) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+.state {
+  border: 1px dashed var(--mist);
+  border-radius: var(--r-card);
+  padding: 48px;
+  text-align: center;
+  color: var(--fog);
+  background: var(--snow);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOTION LAYER
+   Tasteful, on-brand dynamism. All of it degrades to instant/static under
+   prefers-reduced-motion (§11.8) — the block at the very bottom neutralises
+   every animation and pins revealed elements visible.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(0.82); opacity: 0.7; }
+}
+@keyframes pulseRing {
+  0%   { transform: scale(1); opacity: 0.55; }
+  70%  { transform: scale(2.6); opacity: 0; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes sheen {
+  0%   { transform: translateX(-140%) skewX(-18deg); }
+  100% { transform: translateX(260%) skewX(-18deg); }
+}
+@keyframes auroraDrift {
+  0%   { transform: translate3d(-6%, -4%, 0) scale(1); }
+  50%  { transform: translate3d(6%, 4%, 0) scale(1.12); }
+  100% { transform: translate3d(-6%, -4%, 0) scale(1); }
+}
+@keyframes nodeGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0); }
+  10%      { box-shadow: 0 0 20px 2px rgba(255, 90, 0, 0.6); border-color: var(--ember); }
+  25%      { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
+/* ── Scroll-reveal (AOS-style, driven by IntersectionObserver in motion.tsx) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal-left  { transform: translateX(-24px); }
+.reveal-right { transform: translateX(24px); }
+.reveal-scale { transform: scale(0.96); }
+.reveal.in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+/* ── Card hover lift (opt-in via .lift so static content stays calm) ── */
+.card,
+.state {
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+.lift {
+  cursor: default;
+}
+.lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -22px rgba(9, 9, 11, 0.35);
+  border-color: var(--mist);
+}
+a.lift,
+.lift[role="button"] {
+  cursor: pointer;
+}
+
+/* ── Button sheen: a light sweep across dark buttons on hover ── */
+.btn-dark {
+  position: relative;
+  overflow: hidden;
+}
+.btn-dark::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  transform: translateX(-140%) skewX(-18deg);
+  pointer-events: none;
+}
+.btn-dark:hover::after {
+  animation: sheen 0.8s ease;
+}
+
+/* ── Nav link growing underline ── */
+.nav-links a.meta {
+  position: relative;
+}
+.nav-links a.meta::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 1.5px;
+  width: 0;
+  background: var(--obsidian);
+  transition: width 0.24s ease;
+}
+.nav-links a.meta:hover {
+  color: var(--obsidian);
+}
+.nav-links a.meta:hover::after {
+  width: 100%;
+}
+
+/* ── Live pulse dot (for "LIVE / TRADING" statuses) ── */
+.live-dot {
+  position: relative;
+  display: inline-flex;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+.live-dot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: currentColor;
+  animation: pulseRing 1.6s ease-out infinite;
+}
+
+/* ── Entrance helpers used directly (hero, nav) ── */
+.enter-fade { animation: fadeIn 0.7s ease both; }
+.enter-up   { animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.enter-scale { animation: scaleIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.float { animation: floatY 6s ease-in-out infinite; }
+
+/* ── Hero aurora glow behind the live viewport ── */
+.aurora {
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 40% at 30% 30%, rgba(255, 90, 0, 0.16), transparent 70%),
+    radial-gradient(38% 38% at 72% 64%, rgba(255, 90, 0, 0.10), transparent 70%);
+  filter: blur(8px);
+  animation: auroraDrift 14s ease-in-out infinite;
+}
+
+/* ── Mechanism band: a pulse that travels the reactive pipeline ── */
+.flow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  margin: 32px 0;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.flow::-webkit-scrollbar {
+  display: none;
+}
+.flow-node {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--snow);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  z-index: 2;
+  animation: nodeGlow 4s ease-in-out infinite;
+}
+.flow-node-accent {
+  color: var(--ember);
+  border-color: rgba(255, 90, 0, 0.3);
+  background: rgba(255, 90, 0, 0.06);
+}
+.flow:hover .flow-node {
+  transform: translateY(-2px);
+}
+.flow-arrow {
+  color: rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Feed items slide/fade in ── */
+.feed-item {
+  animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Blinking caret for the countdown, to feel alive ── */
+.tick-blink { animation: blink 1s step-end infinite; }
+
+/* ── Mobile Nav Checkbox ── */
+.mobile-nav-toggle { display: none; }
+.mobile-nav-toggle-label {
+  display: none;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  user-select: none;
+}
+
+/* ── Responsive (§11.9) ── */
+
+@media (max-width: 900px) {
+  .shell,
+  .nav-inner {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .mobile-nav-toggle-label {
+    display: block;
+  }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: rgba(244, 244, 245, 0.95);
+    backdrop-filter: blur(12px);
+    padding: 24px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--cloud);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+  .mobile-nav-toggle:checked ~ .nav-links {
+    display: flex;
+  }
+  .band-dark {
+    padding: 32px;
+  }
+  
+  /* Auto-stack all horizontal splits */
+  .shell [style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Reduced motion (§11.8) ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
