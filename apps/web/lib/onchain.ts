@@ -380,7 +380,7 @@ export function totalVolume(agents: Agent[], avgTicketHuman = 1): number {
   return agents.reduce((s, a) => s + a.orders * avgTicketHuman, 0);
 }
 
-const gasBalanceAbi = parseAbiItem("function gasBalance() view returns (uint256)");
+const gasBalanceAbi = parseAbiItem("function subscriberBalance() view returns (uint256)");
 
 /** Dashboard metric: ReactivitySubscriber SOMI balance */
 export async function getSubscriberBalance(): Promise<number | null> {
@@ -393,7 +393,7 @@ export async function getSubscriberBalance(): Promise<number | null> {
     const bal = await c.readContract({
       address: subscriber,
       abi: [gasBalanceAbi],
-      functionName: "gasBalance",
+      functionName: "subscriberBalance",
     });
     return Number(bal) / 1e18;
   } catch {

@@ -183,7 +183,7 @@ export default async function Dashboard() {
                 decimals={2}
                 suffix=" SOMI"
                 sentence="Subscriber gas balance. Burned only on valid price events."
-                provenance="precompile · gasBalanceOf"
+                provenance="precompile · subscriberBalance"
                 delay={480}
               />
               <ProofCard

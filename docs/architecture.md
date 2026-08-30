@@ -63,11 +63,11 @@ Winnings on Event Contracts are **claimed, not auto-converted**. A vault that ne
 
 ## SOMI / gas economics (§4.3)
 
-The subscriber's reactive handler is paid for out of a SOMI balance held against the subscription. Somnia requires **≥ 32 SOMI at subscription creation**; every invocation draws gas from that balance. Candence treats this as a first-class operational concern, not an afterthought:
+The subscriber's reactive handler is paid for out of the contract's native SOMI balance. Somnia requires **≥ 32 SOMI at subscription creation**; every invocation draws gas from that native balance. Candence treats this as a first-class operational concern, not an afterthought:
 
-- **Readout** — `gasBalance()` on the subscriber and `somiBalance()` on each vault are surfaced live on the dashboard, alongside a computed burn rate (SOMI spent per window × windows/day).
-- **Alert** — a low-balance threshold emits `SomiLow(balance, threshold)` and lights a visible alert on the dashboard well before exhaustion.
-- **Top-up** — `fundGas()` / `topUp()` are permissionless payable entry points so anyone (or an automated keeper) can extend runway.
+- **Readout** — `subscriberBalance()` on the subscriber is surfaced live on the dashboard, alongside a computed burn rate (SOMI spent per window × windows/day).
+- **Alert** — a low-balance threshold lights a visible alert on the dashboard well before exhaustion.
+- **Top-up** — The `ReactivitySubscriber` contract implements a `receive() external payable {}` fallback, so anyone (or an automated keeper) can extend runway by sending STT/SOMI directly to its address. There is no custom `fundGas()` escrow.
 - **Exhaustion behavior** — on insufficient gas the handler **skips the window and emits `HandlerSkipped`**. It never reverts silently and never bricks. A skip is a recorded, explainable event, not a mystery gap.
 
 **Economics, concretely.** At the 15-minute candence there are 96 windows/day per interval. If a handler invocation costs *g* SOMI, daily burn per subscribed asset is `96 × g` (plus the 1-hour windows). A 32-SOMI floor therefore buys a predictable number of days of runway that the dashboard displays directly, so funding is a planned line item rather than an outage waiting to happen. On mainnet this same model carries over unchanged (addresses are identical via CREATE3); only the token decimals and venue id differ.

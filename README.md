@@ -585,11 +585,11 @@ function invariant_SpendNeverExceedsCap() public view {
 
 ## ⛽ SOMI / gas economics
 
-The subscriber's reactive handler is paid out of a **SOMI balance** held against the subscription. Somnia requires **≥ 32 SOMI at subscription creation**; every invocation draws gas from that balance. Candence treats this as a first-class operational concern:
+The subscriber's reactive handler is paid out of the contract's native SOMI balance. Somnia requires **≥ 32 SOMI at subscription creation**; every invocation draws gas from that native balance. Candence treats this as a first-class operational concern:
 
-- **Readout** — `gasBalance()` (subscriber) and `somiBalance()` (each vault) are surfaced live on the dashboard, alongside a computed burn rate.
+- **Readout** — `subscriberBalance()` is surfaced live on the dashboard, alongside a computed burn rate.
 - **Alert** — a low-balance threshold lights a visible alert *before* exhaustion.
-- **Top-up** — `fundGas()` / `topUp()` are permissionless payable entry points; anyone (or a keeper) can extend runway.
+- **Top-up** — `receive() external payable {}` allows permissionless STT/SOMI transfers directly to the contract address; anyone (or a keeper) can extend runway. There is no custom `fundGas()` escrow.
 - **Exhaustion behavior** — on insufficient gas the handler **skips the window and emits `HandlerSkipped`**. It never reverts silently and never bricks. A skip is a recorded, explainable event.
 
 **Concretely:** at the 15-minute candence there are 96 windows/day per interval. If an invocation costs *g* SOMI, daily burn per subscribed asset is `96 × g`. A 32-SOMI floor buys a predictable number of days of runway the dashboard displays directly — funding is a planned line item, not an outage waiting to happen. On mainnet the model carries over unchanged (addresses identical via CREATE3); only token decimals and venue id differ.
