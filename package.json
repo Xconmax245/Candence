@@ -15,7 +15,6 @@
     "build": "pnpm -r --filter=./packages/* --filter=./apps/* build",
     "dev:web": "pnpm --filter @candence/web dev",
     "dev:dashboard": "echo \"Dashboard is served at http://localhost:3000/dashboard — run dev:web first\" && pnpm --filter @candence/web dev",
-
     "watcher": "pnpm --filter @candence/watcher start",
     "copilot": "pnpm --filter @candence/ai-copilot start",
     "contracts:build": "cd contracts && forge build",
@@ -24,6 +23,7 @@
     "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
+    "@somnia-chain/reactivity-contracts": "^0.2.1",
     "@types/node": "^20.14.10",
     "dotenv": "^16.4.5",
     "tsx": "^4.16.2",

@@ -15,6 +15,9 @@ importers:
         specifier: ^2.17.0
         version: 2.55.19(typescript@5.9.3)
     devDependencies:
+      '@somnia-chain/reactivity-contracts':
+        specifier: ^0.2.1
+        version: 0.2.1
       '@types/node':
         specifier: ^20.14.10
         version: 20.19.43
@@ -442,6 +445,9 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
+
+  '@somnia-chain/reactivity-contracts@0.2.1':
+    resolution: {integrity: sha512-5F+whWQz9nTvP/3Mml/NZqF2+SBDHR6GZ1EEeZQlqpvnltNzA3y0y6gfm7axWIKBTuXcPgToYOF7TX6C4LoUbA==}
 
   '@swc/counter@0.1.3':
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
@@ -1119,6 +1125,8 @@ snapshots:
       react: 18.3.1
     transitivePeerDependencies:
       - graphql
+
+  '@somnia-chain/reactivity-contracts@0.2.1': {}
 
   '@swc/counter@0.1.3': {}
 

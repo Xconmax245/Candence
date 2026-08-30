@@ -106,13 +106,23 @@ contract CandenceBaseTest is Test {
         subscriber.registerVault(vault);
     }
 
-    /// @dev Price event payload: [marketKey][markPrice][strike] (§ payload convention).
-    function _payload(bytes32 marketId, uint256 markPrice, uint256 strike)
+    /// @dev Price event payload: [markPrice][rawMidpoint]. (Simulates the raw data
+    ///      from MarkPriceUpdated which lacks marketId).
+    function _rawPriceData(uint256 markPrice, uint256 rawMidpoint)
         internal
         pure
         returns (bytes memory)
     {
-        return abi.encodePacked(marketId, markPrice, strike);
+        return abi.encode(markPrice, rawMidpoint);
+    }
+
+    /// @dev Re-encoded payload exactly as the handler delivers to the vault.
+    function _vaultPayload(bytes32 marketId, uint256 markPrice, uint256 strike)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encode(marketId, markPrice, strike);
     }
 
     /// @dev Configure the subscriber's watched price source + topic (timelocked).
@@ -125,16 +135,27 @@ contract CandenceBaseTest is Test {
         vm.stopPrank();
     }
 
-    /// @dev Fire a reactive event exactly as the 0x0100 precompile would: prank as
-    ///      the precompile and call onReactiveEvent with the matched emitter/topic.
-    function _fireReactive(bytes memory data) internal {
+    /// @dev Fire a reactive event exactly as the 0x0100 precompile would.
+    function _fireReactive(uint256 markPrice, uint256 strike) internal {
+        // Option A: watcher pushes the live market before the event
+        bytes32 assetId = keccak256("BTC");
+        uint32 interval = subscriber.trackedIntervalSec();
+        vm.prank(watcher);
+        subscriber.setCurrentMarket(assetId, interval, MK);
+
+        bytes32[] memory topics = new bytes32[](2);
+        topics[0] = TOPIC;
+        topics[1] = assetId;
+
+        bytes memory data = _rawPriceData(markPrice, strike);
+
         vm.prank(PRECOMPILE);
-        subscriber.onReactiveEvent(1, priceSrc, TOPIC, data);
+        subscriber.onEvent(priceSrc, topics, data);
     }
 
     /// @dev Fire the fallback path as an authorized watcher (§4.5).
-    function _fireFallback(bytes32 marketKey, bytes memory data) internal {
+    function _fireFallback(bytes32 marketKey, uint256 markPrice, uint256 strike) internal {
         vm.prank(watcher);
-        subscriber.submitFallbackTrigger(marketKey, data);
+        subscriber.submitFallbackTrigger(marketKey, _vaultPayload(marketKey, markPrice, strike));
     }
 }

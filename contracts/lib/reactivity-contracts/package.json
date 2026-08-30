@@ -1,0 +1,24 @@
+{
+  "name": "@somnia-chain/reactivity-contracts",
+  "version": "0.2.1",
+  "description": "Solidity NPM package for building event-driven applications on the Somnia blockchain",
+  "keywords": [
+    "solidity",
+    "somnia",
+    "reactivity"
+  ],
+  "author": "Somnia Foundation",
+  "license": "MIT",
+  "files": [
+    "contracts",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "forge test"
+  },
+  "devDependencies": {
+    "solhint": "^5.2.0"
+  }
+}

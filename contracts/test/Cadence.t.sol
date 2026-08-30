@@ -29,7 +29,7 @@ contract CandenceTest is CandenceBaseTest {
         AgentVault v = _deployVault(deployer, VaultMode.Reactive, 100_000_000);
 
         // Mark price above strike → lean Up (outcome 0).
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
+        bytes memory data = _vaultPayload(MK, 61_000 * SCALE, 60_000 * SCALE);
 
         vm.prank(address(subscriber));
         v.handleReactiveEvent(MK, data);
@@ -50,7 +50,7 @@ contract CandenceTest is CandenceBaseTest {
         AgentVault v = _deployVault(deployer, VaultMode.Reactive, 100_000_000);
         module.setStatus(MK, MarketStatus.Locked); // §1.2 — not writable
 
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
+        bytes memory data = _vaultPayload(MK, 61_000 * SCALE, 60_000 * SCALE);
         vm.prank(address(subscriber));
         v.handleReactiveEvent(MK, data);
 
@@ -63,7 +63,7 @@ contract CandenceTest is CandenceBaseTest {
         module.setInfo(
             MK, keccak256("BTC"), 900, 60_000 * SCALE, uint64(block.timestamp), uint64(block.timestamp + 10), keccak256("venue")
         );
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
+        bytes memory data = _vaultPayload(MK, 61_000 * SCALE, 60_000 * SCALE);
         vm.prank(address(subscriber));
         v.handleReactiveEvent(MK, data);
         assertEq(module.placedCount(), 0, "no order without headroom");
@@ -71,7 +71,7 @@ contract CandenceTest is CandenceBaseTest {
 
     function test_OnlySubscriberCanTrigger() public {
         AgentVault v = _deployVault(deployer, VaultMode.Reactive, 100_000_000);
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
+        bytes memory data = _vaultPayload(MK, 61_000 * SCALE, 60_000 * SCALE);
         vm.expectRevert(AgentVault.NotSubscriber.selector);
         v.handleReactiveEvent(MK, data);
     }
@@ -85,7 +85,7 @@ contract CandenceTest is CandenceBaseTest {
         AgentVault v = _deployVault(deployer, VaultMode.Reactive, 1_100_000);
         // Each order notional = price(~0.55)*size(5) ≈ 2.75 USDso = 2_750_000 base.
         // Cap 1.1 USDso < one order → the very first order is blocked by the cap.
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
+        bytes memory data = _vaultPayload(MK, 61_000 * SCALE, 60_000 * SCALE);
         vm.prank(address(subscriber));
         v.handleReactiveEvent(MK, data);
         assertEq(module.placedCount(), 0, "cap blocks first oversized order");
@@ -98,7 +98,7 @@ contract CandenceTest is CandenceBaseTest {
         // Generous cap that permits exactly 2 orders, not a 3rd.
         // notional per order = 0.55 * 5 = 2.75 USDso → 2_750_000 base.
         AgentVault v = _deployVault(deployer, VaultMode.Reactive, 6_000_000);
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
+        bytes memory data = _vaultPayload(MK, 61_000 * SCALE, 60_000 * SCALE);
 
         vm.prank(address(subscriber));
         v.handleReactiveEvent(MK, data);
@@ -128,7 +128,7 @@ contract CandenceTest is CandenceBaseTest {
         assertTrue(risk.isVaultPaused(address(v)), "breaker tripped");
 
         // A trigger now reverts inside the vault (caught upstream as HandlerFailed).
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
+        bytes memory data = _vaultPayload(MK, 61_000 * SCALE, 60_000 * SCALE);
         vm.prank(address(subscriber));
         vm.expectRevert(AgentVault.VaultPaused.selector);
         v.handleReactiveEvent(MK, data);
@@ -221,7 +221,7 @@ contract CandenceTest is CandenceBaseTest {
         vm.prank(cloner);
         factory.cloneAgent(address(v), 100_000_000);
 
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
+        bytes memory data = _vaultPayload(MK, 61_000 * SCALE, 60_000 * SCALE);
         vm.prank(address(subscriber));
         v.handleReactiveEvent(MK, data);
 

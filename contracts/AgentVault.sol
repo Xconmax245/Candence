@@ -197,58 +197,76 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
         }
 
         // 2) Typed market fields only (§1.7 #11) + interval-scaled headroom (§1.7 #9).
-        (, uint32 intervalSec,,, uint64 expiryTime,) = module.marketInfo(marketKey);
+        uint32 intervalSec;
+        uint64 expiryTime;
+        {
+            (, uint32 _i,,, uint64 _e,) = module.marketInfo(marketKey);
+            intervalSec = _i;
+            expiryTime = _e;
+        }
         if (!CandenceMath.hasHeadroom(block.timestamp, expiryTime, intervalSec)) {
             emit SkippedNotWritable(marketKey, "no-headroom");
             return;
         }
 
-        // 3) Decide direction + a raw probability price from the event payload.
-        (uint8 outcome, uint256 rawPrice) = _decide(marketKey, data, intervalSec, expiryTime);
-
-        // 4) Snap price + size to grid as bigints (§1.7 #3, #6).
-        (uint256 tick, uint256 scale, uint256 lot) = module.poolGrid(marketKey);
-        uint256 price = CandenceMath.snapPrice(rawPrice, tick, scale);
-        uint256 sizeCap = riskEngine.positionCapBase(address(this));
-        uint256 size = CandenceMath.quantizeSize(sizeCap, lot);
-        if (size == 0) {
-            emit SkippedNotWritable(marketKey, "size-zero");
-            return;
+        // 3) Decide direction + snap price and size to grid.
+        uint8 outcome;
+        uint256 price;
+        uint256 size;
+        uint256 notional;
+        {
+            (uint8 _o, uint256 rawPrice) = _decide(marketKey, data, intervalSec, expiryTime);
+            outcome = _o;
+            
+            (uint256 tick, uint256 scale, uint256 lot) = module.poolGrid(marketKey);
+            price = CandenceMath.snapPrice(rawPrice, tick, scale);
+            size = CandenceMath.quantizeSize(riskEngine.positionCapBase(address(this)), lot);
+            if (size == 0) {
+                emit SkippedNotWritable(marketKey, "size-zero");
+                return;
+            }
+            notional = CandenceMath.notional(price, size, scale);
         }
 
-        uint256 notional = CandenceMath.notional(price, size, scale);
         uint64 expireNs = _expireNs(expiryTime);
 
         // 5) Place for each granted owner, enforcing the spend cap onchain (§1.6).
         for (uint256 i = 0; i < owners.length; i++) {
             address ow = owners[i];
             if (!isOwnerGranted[ow]) continue;
+            _tryPlaceOrder(marketKey, outcome, price, size, notional, expireNs, ow);
+        }
+    }
 
-            (bool ok,) = riskEngine.checkSpend(address(this), ow, notional);
-            if (!ok) {
-                // Never revert the whole dispatch on one owner's cap; skip them.
-                emit SkippedNotWritable(marketKey, "spend-cap");
-                continue;
-            }
+    function _tryPlaceOrder(
+        bytes32 marketKey,
+        uint8 outcome,
+        uint256 price,
+        uint256 size,
+        uint256 notional,
+        uint64 expireNs,
+        address ow
+    ) private {
+        (bool ok,) = riskEngine.checkSpend(address(this), ow, notional);
+        if (!ok) {
+            emit SkippedNotWritable(marketKey, "spend-cap");
+            return;
+        }
 
-            // Commit spend BEFORE routing (reverts if racey) — the invariant point.
-            IRiskEngineCommit(address(riskEngine)).commitSpend(ow, notional);
-
-            OrderRequest memory req = OrderRequest({
-                marketId: marketKey,
-                outcome: outcome,
-                price: price,
-                size: size,
-                expireTimestampNs: expireNs,
-                ioc: true // IOC by default: no resting escrow lock (§1.7 #4)
-            });
-            // placeOrderFor settles fills to the OWNER's wallet, never here (§1.6).
-            try module.placeOrderFor(ow, req) {
-                emit OrderPlaced(ow, marketKey, outcome, size, price);
-            } catch {
-                // Fills can fail benignly (e.g. crossed away). Don't brick others.
-                emit SkippedNotWritable(marketKey, "place-failed");
-            }
+        IRiskEngineCommit(address(riskEngine)).commitSpend(ow, notional);
+        OrderRequest memory req = OrderRequest({
+            marketId: marketKey,
+            outcome: outcome,
+            price: price,
+            size: size,
+            expireTimestampNs: expireNs,
+            ioc: true
+        });
+        
+        try module.placeOrderFor(ow, req) {
+            emit OrderPlaced(ow, marketKey, outcome, size, price);
+        } catch {
+            emit SkippedNotWritable(marketKey, "place-failed");
         }
     }
 
@@ -262,35 +280,22 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
         internal
         returns (uint8 outcome, uint256 rawPrice)
     {
-        // Reactive core: derive a directional lean from the delivered price payload.
-        // data layout: [0:32]=marketKey, [32:64]=markPrice, [64:96]=strike (by convention).
         uint256 markPrice;
         uint256 strike;
         if (data.length >= 96) {
             markPrice = uint256(bytes32(data[32:64]));
             strike = uint256(bytes32(data[64:96]));
         }
-        // Default lean: price above strike → Up more likely.
         bool leanUp = markPrice >= strike;
 
-        // Base probability ~0.55 toward the lean, expressed in base units.
         uint256 half = priceScale / 2;
-        uint256 edge = priceScale / 20; // 0.05
+        uint256 edge = priceScale / 20;
 
         if (modeValue == VaultMode.AiAssisted && address(signalSource) != address(0)) {
-            bytes32 windowKey = _windowKey(marketKey, intervalSec, expiryTime);
-            (int32 scoreBps, uint16 confBps, uint64 issuedAt, bool graded,) =
-                signalSource.latestSignal(windowKey);
-            bool valid = confBps > 0 && issuedAt > 0 && !graded
-                && (block.timestamp - issuedAt) <= intervalSec;
-            if (valid) {
-                emit SignalUsed(marketKey, scoreBps, confBps);
-                leanUp = scoreBps >= 0;
-                // Confidence widens the edge up to ~0.15.
-                edge = (priceScale * uint256(confBps)) / 10_000 / 6 + edge;
-            } else {
-                // MANDATORY graceful fallback to Reactive-only (§0.3, §4.2).
-                emit FellBackToReactive(marketKey, "no-valid-signal");
+            (bool aiValid, bool aiLean, uint256 aiEdge) = _getAiSignal(marketKey, intervalSec, expiryTime);
+            if (aiValid) {
+                leanUp = aiLean;
+                edge = aiEdge + edge;
             }
         }
 
@@ -300,6 +305,20 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
         } else {
             outcome = 1; // Down
             rawPrice = half + edge; // price we pay for the Down side
+        }
+    }
+
+    function _getAiSignal(bytes32 marketKey, uint32 intervalSec, uint64 expiryTime) private returns (bool valid, bool leanUp, uint256 edge) {
+        bytes32 windowKey = _windowKey(marketKey, intervalSec, expiryTime);
+        (int32 scoreBps, uint16 confBps, uint64 issuedAt, bool graded,) = signalSource.latestSignal(windowKey);
+        
+        valid = confBps > 0 && issuedAt > 0 && !graded && (block.timestamp - issuedAt) <= intervalSec;
+        if (valid) {
+            emit SignalUsed(marketKey, scoreBps, confBps);
+            leanUp = scoreBps >= 0;
+            edge = (priceScale * uint256(confBps)) / 10_000 / 6;
+        } else {
+            emit FellBackToReactive(marketKey, "no-valid-signal");
         }
     }
 

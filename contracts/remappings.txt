@@ -1,3 +1,4 @@
 @openzeppelin/=lib/openzeppelin-contracts/
 @openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/
 forge-std/=lib/forge-std/src/
+@somnia-chain/reactivity-contracts/=lib/reactivity-contracts/

@@ -180,9 +180,22 @@ async function main(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log(
     `\nNext:\n` +
-      `  1. Fund the subscriber with ≥32 SOMI, then subscribe() to the price source (§4.3, §10).\n` +
-      `  2. Authorize the watcher wallet: subscriber.setFallbackWatcher(<watcher>, true) (§4.5).\n` +
-      `  3. Seed house agents: \`pnpm seed\` (§7 Phase 3).\n`,
+      `  1. Transfer ≥ 32 STT (native) to the subscriber address:\n` +
+      `       ${subscriber}\n` +
+      `     SomniaExtensions validates address(this).balance at subscribe time.\n` +
+      `  2. Set price source (timelocked flow):\n` +
+      `       subscriber.queueSetPriceSource(<btcSpotPool>, priceTopic)\n` +
+      `       (wait ${Number(TIMELOCK_DELAY)}s)\n` +
+      `       subscriber.executeSetPriceSource(<btcSpotPool>, priceTopic)\n` +
+      `  3. Subscribe: subscriber.subscribe() — creates the onchain subscription.\n` +
+      `  4. Authorize the watcher: subscriber.setFallbackWatcher(<watcher>, true) (§4.5).\n` +
+      `     The watcher ALSO calls setCurrentMarket(assetId, 3600, marketId) when each\n` +
+      `     new 1h BTC window opens — this is how the subscriber knows which marketId\n` +
+      `     to trade (MarkPriceUpdated delivers asset, not marketId).\n` +
+      `  5. Seed house agents: \`pnpm seed\` (§7 Phase 3).\n` +
+      `  6. Verify Option C: check BinaryMarketsModule on the testnet explorer for a\n` +
+      `     MarketCreated event — if it exists, a second subscription can keep\n` +
+      `     currentMarket[] reactive without the watcher push step above.\n`,
   );
 }
 

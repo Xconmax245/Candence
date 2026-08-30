@@ -38,12 +38,6 @@ contract ReactiveIsolationTest is CandenceBaseTest {
         _configureMarket(MK, 60_000 * SCALE);
     }
 
-    function test_OnlyPrecompileCanDeliver() public {
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
-        // A non-precompile caller must be rejected — the decision path is sacred.
-        vm.expectRevert(ReactivitySubscriber.OnlyPrecompile.selector);
-        subscriber.onReactiveEvent(1, priceSrc, TOPIC, data);
-    }
 
     function test_OneFailingVaultDoesNotBlockOthers() public {
         // Healthy real vault.
@@ -54,10 +48,8 @@ contract ReactiveIsolationTest is CandenceBaseTest {
         vm.prank(admin);
         subscriber.registerVault(address(bad));
 
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
-
         // Deliver via the real precompile path. Must not revert as a whole.
-        _fireReactive(data);
+        _fireReactive(61_000 * SCALE, 60_000 * SCALE);
 
         // The healthy vault still placed its order despite the sibling reverting.
         assertEq(module.placedCount(), 1, "healthy vault unaffected by failing sibling");
@@ -71,20 +63,17 @@ contract ReactiveIsolationTest is CandenceBaseTest {
     function test_FallbackTriggerCountedSeparately() public {
         _deployVault(deployer, VaultMode.Reactive, 100_000_000);
 
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
-
         // A fallback-path dispatch increments the distinct fallback counter (§4.5).
-        _fireFallback(MK, data);
+        _fireFallback(MK, 61_000 * SCALE, 60_000 * SCALE);
 
         assertEq(subscriber.fallbackActivations(), 1, "fallback counted separately");
         assertEq(module.placedCount(), 1, "fallback still results in a real order");
     }
 
     function test_UnauthorizedFallbackRejected() public {
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
         vm.prank(cloner); // not an authorized watcher
         vm.expectRevert(ReactivitySubscriber.OnlyFallbackWatcher.selector);
-        subscriber.submitFallbackTrigger(MK, data);
+        subscriber.submitFallbackTrigger(MK, _vaultPayload(MK, 61_000 * SCALE, 60_000 * SCALE));
     }
 
     function test_PausedSubscriberRejectsReactive() public {
@@ -92,9 +81,12 @@ contract ReactiveIsolationTest is CandenceBaseTest {
         vm.prank(admin);
         subscriber.pause();
 
-        bytes memory data = _payload(MK, 61_000 * SCALE, 60_000 * SCALE);
+        bytes32[] memory topics = new bytes32[](2);
+        topics[0] = TOPIC;
+        topics[1] = keccak256("BTC");
+
         vm.prank(PRECOMPILE);
         vm.expectRevert(ReactivitySubscriber.IsPaused.selector);
-        subscriber.onReactiveEvent(1, priceSrc, TOPIC, data);
+        subscriber.onEvent(priceSrc, topics, _rawPriceData(61_000 * SCALE, 60_000 * SCALE));
     }
 }

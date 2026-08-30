@@ -27,8 +27,11 @@ export const reactivitySubscriberAbi = [
   "event Paused(bool paused)",
   "event VaultRegistered(address indexed vault)",
   "event VaultDeregistered(address indexed vault)",
-  // ── Reactive callback path (precompile-driven, §4.1) ──
-  "function onReactiveEvent(uint256 subscriptionId, address emitter, bytes32 topic, bytes data)",
+  "event CurrentMarketSet(bytes32 indexed assetId, uint32 intervalSec, bytes32 marketId, uint256 blockNumber)",
+  "event HandlerGasLimitSet(uint64 gasLimit)",
+  // ── Reactive callback path (precompile-driven via SomniaEventHandler, §4.1) ──
+  // onEvent(address,bytes32[],bytes) is the external entry point on SomniaEventHandler.
+  // _onEvent is internal. Only the fallback path is directly callable by authorized watchers.
   "function submitFallbackTrigger(bytes32 marketKey, bytes data)",
   // ── Onchain telemetry counters — drift-free dashboard source (§6) ──
   "function counters() view returns (uint256 succeeded, uint256 failed, uint256 skipped)",
@@ -36,17 +39,24 @@ export const reactivitySubscriberAbi = [
   "function failedCount() view returns (uint256)",
   "function skippedCount() view returns (uint256)",
   "function fallbackActivations() view returns (uint256)",
-  // ── Subscription lifecycle + SOMI funding (§4.3) ──
-  "function subscribe() payable returns (uint256 subscriptionId)",
+  // ── Subscription lifecycle (§4.1) ──
+  "function subscribe() returns (uint256 subscriptionId)",
   "function cancelSubscription()",
-  "function fundGas() payable",
-  "function gasBalance() view returns (uint256)",
   "function subscriptionId() view returns (uint256)",
+  "function handlerGasLimit() view returns (uint64)",
+  "function setHandlerGasLimit(uint64 gasLimit)",
+  // ── Native SOMI balance (replaces deprecated fundGas/gasBalance, §4.3) ──
+  "function subscriberBalance() view returns (uint256)",
   // ── Admin: price source (timelocked, §4.1) ──
   "function queueSetPriceSource(address emitter, bytes32 topic)",
   "function executeSetPriceSource(address emitter, bytes32 topic)",
   "function priceSource() view returns (address)",
   "function priceTopic() view returns (bytes32)",
+  // ── Market-key registry (Option A: watcher push, §4.5) ──
+  "function setCurrentMarket(bytes32 assetId, uint32 intervalSec, bytes32 marketId)",
+  "function currentMarket(bytes32 assetId, uint32 intervalSec) view returns (bytes32 marketId)",
+  "function trackedIntervalSec() view returns (uint32)",
+  "function setTrackedInterval(uint32 intervalSec)",
   // ── Admin: pause (freeze instant, unpause timelocked, §4.1) ──
   "function pause()",
   "function queueUnpause()",
