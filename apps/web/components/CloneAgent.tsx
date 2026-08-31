@@ -91,11 +91,35 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
     try {
       setPhase("connecting");
       const accounts = await eth.request({ method: "eth_requestAccounts" });
+      
+      // Ensure we are on Somnia Testnet before proceeding
+      try {
+        await eth.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0xc488" }], // 50312
+        });
+      } catch (switchError: any) {
+        if (switchError.code === 4902) {
+          await eth.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: "0xc488",
+              chainName: "Somnia Testnet",
+              rpcUrls: ["https://dream-rpc.somnia.network"],
+              nativeCurrency: { name: "STT", symbol: "STT", decimals: 18 },
+              blockExplorerUrls: ["https://shannon-explorer.somnia.network"]
+            }],
+          });
+        } else {
+          throw switchError;
+        }
+      }
+
       setAddress(accounts[0] ?? null);
       setPhase("approving");
     } catch {
       setPhase("error");
-      setError("Connection cancelled.");
+      setError("Connection cancelled or network switch rejected.");
     }
   }
 
