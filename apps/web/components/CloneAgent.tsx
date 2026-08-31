@@ -19,29 +19,16 @@ import { LiveDot } from "./motion";
  *   grantOperator(address operator, bytes4 selector)  — 2 params, no pool.
  */
 
-/** grantOperator(address, bytes4) — matches the real on-chain signature. */
+/** setOperatorApprovalGlobal(address, bytes4[], bool) — matches the real on-chain signature. */
 const GRANT_ABI = [
   {
     type: "function",
-    name: "grantOperator",
+    name: "setOperatorApprovalGlobal",
     stateMutability: "nonpayable",
     inputs: [
       { name: "operator", type: "address" },
-      { name: "selector", type: "bytes4" },
-    ],
-    outputs: [],
-  },
-] as const;
-
-/** revokeOperator(address, bytes4) — immediate, owner-only. */
-const REVOKE_ABI = [
-  {
-    type: "function",
-    name: "revokeOperator",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "operator", type: "address" },
-      { name: "selector", type: "bytes4" },
+      { name: "selectors", type: "bytes4[]" },
+      { name: "approved", type: "bool" }
     ],
     outputs: [],
   },
@@ -127,16 +114,11 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
     const eth = getEthereum();
     if (!eth || !address) return;
     setPhase("granting");
-    setGrantStep(0);
+    setGrantStep(0); // We will only have 1 step now
     setTxHashes([]);
 
-    const selectorEntries = [
-      { name: "place", selector: SELECTORS.place },
-      { name: "cancel", selector: SELECTORS.cancel },
-      { name: "reduce", selector: SELECTORS.reduce },
-    ] as const;
+    const selectors = [SELECTORS.place, SELECTORS.cancel, SELECTORS.reduce];
 
-    const hashes: string[] = [];
     try {
       // Use viem to ensure correct transaction formatting/gas estimation for Somnia
       const { createWalletClient, custom, createPublicClient, http } = await import("viem");
@@ -152,28 +134,24 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
         transport: http("https://dream-rpc.somnia.network")
       });
 
-      for (let i = 0; i < selectorEntries.length; i++) {
-        setGrantStep(i);
-        const hash = await walletClient.writeContract({
-          address: registryAddress,
-          abi: GRANT_ABI,
-          functionName: "grantOperator",
-          args: [vaultAddress, selectorEntries[i]!.selector],
-        });
-        
-        // Wait for it to be mined so we don't spam nonces or UI states
-        await publicClient.waitForTransactionReceipt({ hash });
-        
-        hashes.push(hash);
-        setTxHashes([...hashes]);
-      }
+      const hash = await walletClient.writeContract({
+        address: registryAddress,
+        abi: GRANT_ABI,
+        functionName: "setOperatorApprovalGlobal",
+        args: [vaultAddress, selectors, true],
+      });
+      
+      // Wait for it to be mined
+      await publicClient.waitForTransactionReceipt({ hash });
+      
+      setTxHashes([hash]);
       setPhase("following");
     } catch (e) {
       setPhase("error");
       setError(
         e instanceof Error && (e.message.includes("rejected") || e.message.includes("User denied"))
-          ? `Signature ${grantStep + 1}/3 cancelled. You can retry.`
-          : `Grant failed at step ${grantStep + 1}/3.`,
+          ? `Signature cancelled. You can retry.`
+          : `Grant failed.`,
       );
     }
   }
@@ -196,27 +174,23 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
         transport: http("https://dream-rpc.somnia.network")
       });
 
-      const selectorEntries = [
-        { name: "place", selector: SELECTORS.place },
-        { name: "cancel", selector: SELECTORS.cancel },
-        { name: "reduce", selector: SELECTORS.reduce },
-      ] as const;
+      const selectors = [SELECTORS.place, SELECTORS.cancel, SELECTORS.reduce];
 
-      for (let i = 0; i < selectorEntries.length; i++) {
-        const hash = await walletClient.writeContract({
-          address: registryAddress,
-          abi: REVOKE_ABI,
-          functionName: "revokeOperator",
-          args: [vaultAddress, selectorEntries[i]!.selector],
-        });
-        
-        // Wait for mining to prevent UI desync or nonce collisions
-        await publicClient.waitForTransactionReceipt({ hash });
-      }
+      const hash = await walletClient.writeContract({
+        address: registryAddress,
+        abi: GRANT_ABI,
+        functionName: "setOperatorApprovalGlobal",
+        args: [vaultAddress, selectors, false],
+      });
+      
+      await publicClient.waitForTransactionReceipt({ hash });
+
       setPhase("idle");
-    } catch (e) {
+      setGrantStep(0);
+      setTxHashes([]);
+    } catch {
       setPhase("error");
-      setError("Revocation failed or cancelled.");
+      setError("Revoke failed. You can try again.");
     }
   }
 

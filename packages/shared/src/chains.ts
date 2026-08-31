@@ -28,8 +28,8 @@ export const DREAMDEX_CORE = {
   OutcomeToken6909: "0xB52c5934113Af5c0Bb20eb3C72290C8215f755b9",
   OracleHub: "0xe40db387cC98601Dd11bd634fF2f3AD5686dE32b",
   CollateralRouter: "0xbC0C9834B15ACE38bB50dDaa7d7f7C7CC4DC183C",
-  /** Owner calls grantOperator(vault, selector) here — the §1.6 non-custodial grant target. */
-  OperatorPermissionsRegistry: "0x2802504314685D89bF6C992CA5a8e7cC78bc0294",
+  /** Owner calls setOperatorApprovalGlobal(vault, selectors, true) here — the §1.6 non-custodial grant target. */
+  OperatorPermissionsRegistry: "0x15C7e8CE38F021c5b45d098AaD788f63090bF20A",
 } as const;
 
 /**
