@@ -30,7 +30,7 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
-    "@somnia-chain/markets-sdk": "^0.25.0",
+    "@somnia-chain/markets-sdk": "^0.28.1",
     "viem": "^2.17.0"
   }
 }

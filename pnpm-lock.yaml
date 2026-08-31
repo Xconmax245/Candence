@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@somnia-chain/markets-sdk':
-        specifier: ^0.25.0
-        version: 0.25.0(graphql@17.0.2)(react@18.3.1)(viem@2.55.19(typescript@5.9.3))
+        specifier: ^0.28.1
+        version: 0.28.1(graphql@17.0.2)(react@18.3.1)(viem@2.55.19(typescript@5.9.3))
       viem:
         specifier: ^2.17.0
         version: 2.55.19(typescript@5.9.3)
@@ -443,6 +443,18 @@ packages:
       react: '>=18'
       viem: ^2
     peerDependenciesMeta:
+      react:
+        optional: true
+
+  '@somnia-chain/markets-sdk@0.28.1':
+    resolution: {integrity: sha512-CwrYT/kSKaCxYk9ehdOPxGggOrRepaJIEH9tTQINGn4iHIDmE7kMoP33Da0GS0MA4LIt57mRnOnru0NZnnCU7A==}
+    peerDependencies:
+      '@somnia-chain/reactivity': ^0.2.1
+      react: '>=18'
+      viem: ^2
+    peerDependenciesMeta:
+      '@somnia-chain/reactivity':
+        optional: true
       react:
         optional: true
 
@@ -1118,6 +1130,15 @@ snapshots:
       '@scure/base': 1.2.6
 
   '@somnia-chain/markets-sdk@0.25.0(graphql@17.0.2)(react@18.3.1)(viem@2.55.19(typescript@5.9.3))':
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@17.0.2)
+      viem: 2.55.19(typescript@5.9.3)
+    optionalDependencies:
+      react: 18.3.1
+    transitivePeerDependencies:
+      - graphql
+
+  '@somnia-chain/markets-sdk@0.28.1(graphql@17.0.2)(react@18.3.1)(viem@2.55.19(typescript@5.9.3))':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@17.0.2)
       viem: 2.55.19(typescript@5.9.3)
