@@ -17,8 +17,14 @@ export type DeploymentAddresses = Record<string, `0x${string}`>;
 interface DeploymentFile {
   network: string;
   chainId: number;
+  deployedAtBlock?: number;
   contracts: DeploymentAddresses;
   params?: Record<string, unknown>;
+}
+
+export interface DeploymentInfo {
+  contracts: DeploymentAddresses;
+  deployedAtBlock?: number;
 }
 
 /**
@@ -28,6 +34,15 @@ interface DeploymentFile {
 export function readDeploymentAddresses(
   network: NetworkName,
 ): DeploymentAddresses | undefined {
+  return readDeployment(network)?.contracts;
+}
+
+/**
+ * Return the full deployment info (contracts + deployedAtBlock) for a network.
+ */
+export function readDeployment(
+  network: NetworkName,
+): DeploymentInfo | undefined {
   try {
     const here = dirname(fileURLToPath(import.meta.url));
     // packages/shared/src → repo root is three levels up.
@@ -35,7 +50,7 @@ export function readDeploymentAddresses(
     const file = join(repoRoot, "deployments", `${network}.json`);
     if (!existsSync(file)) return undefined;
     const parsed = JSON.parse(readFileSync(file, "utf8")) as DeploymentFile;
-    return parsed.contracts;
+    return { contracts: parsed.contracts, deployedAtBlock: parsed.deployedAtBlock };
   } catch {
     return undefined;
   }

@@ -3,8 +3,8 @@ import { Reveal, CountUp, LiveDot } from "@/components/motion";
 import { pct, shortHash } from "@/lib/format";
 import {
   getTelemetry,
-  getFallbackActivations,
-  summarize,
+  getReliabilityCounters,
+  summarizeFromCounters,
   getAgents,
   getSubscriberBalance,
   getUnclaimedWinnings,
@@ -54,15 +54,17 @@ function ProofCard({
 
 
 export default async function Dashboard() {
-  const [telemetry, fallback, agents, subscriberBalance] = await Promise.all([
+  // Use onchain counters (readContract eth_call) for headline numbers — instant, no getLogs.
+  // getTelemetry uses a narrow window (last 5000 blocks) for the recent activity feed only.
+  const [counters, telemetry, agents, subscriberBalance] = await Promise.all([
+    getReliabilityCounters(),
     getTelemetry(),
-    getFallbackActivations(),
     getAgents(),
     getSubscriberBalance(),
   ]);
   const net = networkInfo();
 
-  if (!telemetry || fallback === null || !agents || subscriberBalance === null) {
+  if (counters === null) {
     return (
       <main className="section">
         <div className="shell">
@@ -87,7 +89,8 @@ export default async function Dashboard() {
     );
   }
 
-  const s = summarize(telemetry, fallback);
+  // Build summary from onchain counters (source of truth) — not from getLogs.
+  const s = summarizeFromCounters(counters);
 
   const reactive = agents.filter((a) => a.division === "reactive");
   const ai = agents.filter((a) => a.division === "ai-assisted");
@@ -97,7 +100,7 @@ export default async function Dashboard() {
   const aiSignalQuality = ai.length ? ai.reduce((x, a) => x + (a.signalQuality ?? a.winRate), 0) / ai.length : 0;
   const vol = totalVolume(agents);
 
-  const recent = telemetry.slice(0, 12);
+  const recent = (telemetry ?? []).slice(0, 12);
 
   return (
     <main className="section">

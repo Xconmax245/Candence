@@ -2,6 +2,7 @@
   "network": "testnet",
   "chainId": 50312,
   "deployedAt": "2026-08-30T22:39:32.041Z",
+  "deployedAtBlock": 475565379,
   "deployer": "0x49b56870d1C0F6f3C411156D50634f7916da93D0",
   "contracts": {
     "RiskEngine": "0xb48e57333280091649b71df24ff2253c651a7716",

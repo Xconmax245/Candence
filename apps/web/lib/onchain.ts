@@ -25,6 +25,7 @@ import {
   resolveVenueId,
   fetchBinaryMarketsRest,
   readDeploymentAddresses,
+  readDeployment,
   fromBaseUnits,
   type RestMarket,
 } from "@candence/shared";
@@ -100,23 +101,105 @@ const handlerSkipped = parseAbiItem(
   "event HandlerSkipped(address indexed vault, bytes32 indexed marketKey, string reason)",
 );
 const fallbackTriggered = parseAbiItem(
-  "event FallbackTriggered(address indexed watcher, bytes32 indexed marketKey, uint256 blockNumber)",
+  "event FallbackTriggered(address indexed vault, bytes32 indexed marketKey, address caller)",
 );
 
+// ── Onchain counter ABI (instant eth_call, no getLogs needed) ─────────────
+// These are the actual public state variable auto-getters on ReactivitySubscriber.sol
+const subscriberCountersAbi = [
+  {
+    type: "function",
+    name: "succeededCount",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "failedCount",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "skippedCount",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "fallbackActivations",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+] as const;
+
+export interface ReliabilityCounters {
+  succeeded: number;
+  failed: number;
+  skipped: number;
+  fallbackActivations: number;
+  total: number;
+}
+
 /**
- * Read the reactive telemetry events from the subscriber over the last
- * `lookbackBlocks`. Returns a chronological list. Empty (not an error) when the
- * subscriber isn't deployed yet.
+ * Read the onchain counters from the subscriber contract via eth_call.
+ * These are instant reads — no getLogs, no block range. The contract
+ * maintains these counters atomically with each handler invocation.
+ *
+ * This is the primary source for the dashboard headline numbers.
  */
-export async function getTelemetry(lookbackBlocks = 999n): Promise<TelemetryPoint[] | null> {
+export async function getReliabilityCounters(): Promise<ReliabilityCounters | null> {
   const net = activeNetwork();
-  const addrs = readDeploymentAddresses(net.name);
-  const subscriber = addrs?.ReactivitySubscriber as Address | undefined;
-  if (!subscriber) return [];
+  const dep = readDeployment(net.name);
+  const subscriber = dep?.contracts?.ReactivitySubscriber as Address | undefined;
+  if (!subscriber) return { succeeded: 0, failed: 0, skipped: 0, fallbackActivations: 0, total: 0 };
   const c = client();
   try {
+    const [succeeded, failed, skipped, fallbacks] = await Promise.all([
+      c.readContract({ address: subscriber, abi: subscriberCountersAbi, functionName: "succeededCount" }),
+      c.readContract({ address: subscriber, abi: subscriberCountersAbi, functionName: "failedCount" }),
+      c.readContract({ address: subscriber, abi: subscriberCountersAbi, functionName: "skippedCount" }),
+      c.readContract({ address: subscriber, abi: subscriberCountersAbi, functionName: "fallbackActivations" }),
+    ]);
+    const s = Number(succeeded);
+    const f = Number(failed);
+    const sk = Number(skipped);
+    const fb = Number(fallbacks);
+    return {
+      succeeded: s,
+      failed: f,
+      skipped: sk,
+      fallbackActivations: fb,
+      total: s + f + sk,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Read the last N handler events for the recent-invocations feed.
+ * Uses a narrow window (last 5000 blocks ≈ 8 min on Somnia's 10 block/sec chain)
+ * to avoid crashing the RPC with huge getLogs ranges.
+ * Returns an empty array (not null) on any RPC failure — the counters above
+ * are the source of truth; this is just for the recent activity list.
+ */
+export async function getTelemetry(): Promise<TelemetryPoint[] | null> {
+  const net = activeNetwork();
+  const dep = readDeployment(net.name);
+  const subscriber = dep?.contracts?.ReactivitySubscriber as Address | undefined;
+  if (!subscriber) return [];
+  const c = client();
+  // Narrow window — avoid crashing the Somnia RPC with getLogs over 800k blocks.
+  // The headline counts come from onchain counters (getReliabilityCounters), not here.
+  const RECENT_BLOCKS = 5000n;
+  try {
     const head = await c.getBlockNumber();
-    const fromBlock = head > lookbackBlocks ? head - lookbackBlocks : 0n;
+    const fromBlock = head > RECENT_BLOCKS ? head - RECENT_BLOCKS : 0n;
     const [ok, fail, skip] = await Promise.all([
       c.getLogs({ address: subscriber, event: handlerSucceeded, fromBlock, toBlock: head }),
       c.getLogs({ address: subscriber, event: handlerFailed, fromBlock, toBlock: head }),
@@ -160,25 +243,15 @@ export async function getTelemetry(lookbackBlocks = 999n): Promise<TelemetryPoin
     }
     return pts.sort((a, b) => Number(b.blockNumber - a.blockNumber));
   } catch {
-    return null;
+    // getLogs failed — return empty array; the dashboard still shows counter data.
+    return [];
   }
 }
 
-/** Count fallback-watcher activations (a distinct, honest metric — §4.5, §6). */
-export async function getFallbackActivations(lookbackBlocks = 999n): Promise<number | null> {
-  const net = activeNetwork();
-  const addrs = readDeploymentAddresses(net.name);
-  const subscriber = addrs?.ReactivitySubscriber as Address | undefined;
-  if (!subscriber) return 0;
-  const c = client();
-  try {
-    const head = await c.getBlockNumber();
-    const fromBlock = head > lookbackBlocks ? head - lookbackBlocks : 0n;
-    const logs = await c.getLogs({ address: subscriber, event: fallbackTriggered, fromBlock, toBlock: head });
-    return logs.length;
-  } catch {
-    return null;
-  }
+/** Count fallback-watcher activations — now delegated to getReliabilityCounters(). */
+export async function getFallbackActivations(): Promise<number | null> {
+  const counters = await getReliabilityCounters();
+  return counters?.fallbackActivations ?? null;
 }
 
 /** Aggregate telemetry into the reliability summary the dashboard headline shows. */
@@ -202,6 +275,20 @@ export function summarize(points: TelemetryPoint[], fallbackActivations: number)
     successRate: attempted === 0 ? 0 : succeeded.length / attempted,
     avgLatencyMs,
     fallbackActivations,
+  };
+}
+
+/** Build a ReliabilitySummary directly from onchain counters (no getLogs). */
+export function summarizeFromCounters(c: ReliabilityCounters): ReliabilitySummary {
+  const attempted = c.succeeded + c.failed;
+  return {
+    total: c.total,
+    succeeded: c.succeeded,
+    failed: c.failed,
+    skipped: c.skipped,
+    successRate: attempted === 0 ? 0 : c.succeeded / attempted,
+    avgLatencyMs: 0, // latency only available via getLogs events
+    fallbackActivations: c.fallbackActivations,
   };
 }
 
@@ -265,68 +352,84 @@ const claimSwept = parseAbiItem(
 );
 
 /**
- * Build the agent roster + leaderboard from factory/vault events. Empty (not an
- * error) until the factory is deployed and house agents are seeded (Phase 3).
+ * Build the agent roster + leaderboard from the deployment registry.
+ * Stats (orders, claims) are fetched via getLogs over a narrow window.
+ * This function NEVER returns null — if the RPC is slow, agents are returned
+ * with zero stats rather than crashing the dashboard.
  */
-export async function getAgents(lookbackBlocks = 999n): Promise<Agent[] | null> {
+export async function getAgents(): Promise<Agent[] | null> {
   const net = activeNetwork();
   const addrs = readDeploymentAddresses(net.name);
   const factory = addrs?.AgentVaultFactory as Address | undefined;
   if (!factory) return [];
-  const c = client();
-  try {
-    const head = await c.getBlockNumber();
-    const fromBlock = head > lookbackBlocks ? head - lookbackBlocks : 0n;
-    // Since Somnia RPC limits getLogs to 1000 blocks, we cannot reliably fetch
-    // historical VaultDeployed events without an indexer. Instead, we load the
-    // seeded house agents directly from the deployment registry, then fetch their
-    // live order/claim history directly from the chain as required by the directive.
-    const agentsPath = require("path").join(process.cwd(), "../../deployments", `agents.${net.name}.json`);
-    const fs = require("fs");
-    let houseAgents: any[] = [];
-    if (fs.existsSync(agentsPath)) {
-      houseAgents = JSON.parse(fs.readFileSync(agentsPath, "utf8")).agents || [];
-    }
 
-    const decimals = net.collateral.decimals;
-    const agents: Agent[] = [];
-    
-    for (const a of houseAgents) {
-      const vault = a.vault as Address;
-      if (!vault) continue;
-      // Per-vault order + claim history (keyed correctly by vault address, its
-      // OWN identity — NOT a market pool address).
-      const [orders, claims] = await Promise.all([
+  // Load house agents from the deployment registry — no RPC needed for metadata.
+  let houseAgents: any[] = [];
+  try {
+    const { join } = await import("node:path");
+    const { existsSync, readFileSync } = await import("node:fs");
+    const agentsPath = join(process.cwd(), "../../deployments", `agents.${net.name}.json`);
+    if (existsSync(agentsPath)) {
+      houseAgents = JSON.parse(readFileSync(agentsPath, "utf8")).agents || [];
+    }
+  } catch {
+    // deployment file missing — no agents yet
+    return [];
+  }
+
+  if (houseAgents.length === 0) return [];
+
+  const c = client();
+  const decimals = net.collateral.decimals;
+  const agents: Agent[] = [];
+
+  // Fetch live stats — best effort. If getLogs fails, agent still appears with 0 stats.
+  for (const a of houseAgents) {
+    const vault = a.vault as Address;
+    if (!vault) continue;
+
+    let orders = 0;
+    let winRate = 0;
+    let claimed = 0;
+
+    try {
+      // Narrow window for stats — avoids crashing the RPC.
+      const head = await c.getBlockNumber();
+      const STATS_WINDOW = 5000n;
+      const fromBlock = head > STATS_WINDOW ? head - STATS_WINDOW : 0n;
+      const [orderLogs, claimLogs] = await Promise.all([
         c.getLogs({ address: vault, event: orderPlaced, fromBlock, toBlock: head }),
         c.getLogs({ address: vault, event: claimSwept, fromBlock, toBlock: head }),
       ]);
+      orders = orderLogs.length;
       let wins = 0;
       let decided = 0;
-      let claimed = 0;
-      for (const cl of claims) {
+      for (const cl of claimLogs) {
         const ca = cl.args as { amount?: bigint; voided?: boolean };
         const amt = ca.amount ?? 0n;
         claimed += Number(fromBaseUnits(amt, decimals));
-        if (ca.voided) continue; // void = break-even, excluded from win-rate
+        if (ca.voided) continue;
         decided += 1;
         if (amt > 0n) wins += 1;
       }
-      agents.push({
-        vault,
-        strategyId: BigInt(a.strategyId ?? 0),
-        deployer: a.deployer ?? "0x0000000000000000000000000000000000000000",
-        division: a.mode === "ai-assisted" ? "ai-assisted" : "reactive",
-        winRate: decided === 0 ? 0 : wins / decided,
-        orders: orders.length,
-        followers: 1, // Defaulting to 1 for house agents since we don't query clones here
-        claimed,
-      });
+      winRate = decided === 0 ? 0 : wins / decided;
+    } catch {
+      // RPC slow — agent listed with 0 stats, not an error.
     }
-    // Leaderboard order: win-rate, then volume.
-    return agents.sort((x, y) => y.winRate - x.winRate || y.orders - x.orders);
-  } catch {
-    return null;
+
+    agents.push({
+      vault,
+      strategyId: BigInt(a.strategyId ?? 0),
+      deployer: a.deployer ?? "0x0000000000000000000000000000000000000000",
+      division: a.mode === "ai-assisted" ? "ai-assisted" : "reactive",
+      winRate,
+      orders,
+      followers: 1,
+      claimed,
+    });
   }
+
+  return agents.sort((x, y) => y.winRate - x.winRate || y.orders - x.orders);
 }
 
 /** The live call feed — most recent orders placed across all vaults. */
@@ -397,7 +500,8 @@ export async function getSubscriberBalance(): Promise<number | null> {
     });
     return Number(bal) / 1e18;
   } catch {
-    return null;
+    // If the RPC can't answer, return 0 rather than crashing the dashboard.
+    return 0;
   }
 }
 
