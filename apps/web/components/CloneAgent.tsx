@@ -147,7 +147,7 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
         });
         const txHash = await eth.request({
           method: "eth_sendTransaction",
-          params: [{ from: address, to: registryAddress, data }],
+          params: [{ from: address, to: registryAddress, data, gas: "0x30d40" }],
         });
         hashes.push(txHash as string);
         setTxHashes([...hashes]);
