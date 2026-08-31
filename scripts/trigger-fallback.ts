@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { createPublicClient, createWalletClient, http, type Hex } from "viem";
+import { createPublicClient, createWalletClient, http, encodeAbiParameters, parseAbiParameters, type Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { activeNetwork, viemChainFor } from "../packages/shared/src/index.js";
 import { readDeployment } from "./lib/artifacts.js";
@@ -60,7 +60,7 @@ async function main() {
   const dummyMarketKey = "0x111122223333444455556666777788889999aaaabbbbccccddddeeeeffff0000";
   // The vaults expect data to be encoded as: abi.encode(marketKey, markPrice, rawMidpoint)
   // Let's create a hex string of the abi encoded data for testing!
-  import { encodeAbiParameters, parseAbiParameters } from "viem";
+  // Let's create a hex string of the abi encoded data for testing!
   const encodedData = encodeAbiParameters(
     parseAbiParameters("bytes32, uint256, uint256"),
     [dummyMarketKey, 60000000000n, 60000000000n]
@@ -80,8 +80,8 @@ async function main() {
     console.log(`Transaction submitted (hash: ${hash}). Waiting for receipt...`);
     await publicClient.waitForTransactionReceipt({ hash });
     console.log("\nSuccess! Fallback event triggered. Check the dashboard!");
-  } catch (err: any) {
-    console.log(err.message);
+  } catch (err) {
+    console.log(err);
   }
 }
 
