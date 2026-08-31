@@ -1,0 +1,23 @@
+{
+  "network": "testnet",
+  "chainId": 50312,
+  "deployedAt": "2026-08-30T22:39:32.041Z",
+  "deployer": "0x49b56870d1C0F6f3C411156D50634f7916da93D0",
+  "contracts": {
+    "RiskEngine": "0xb48e57333280091649b71df24ff2253c651a7716",
+    "StrategyNFT": "0xe8a0ad2064ec30b96f987c47e6c58b8876bc3706",
+    "CopilotAttestor": "0xe22ab583a5b09defce4c2de9a1081ff93d1e5aad",
+    "ReactivitySubscriber": "0x688f1c1614f7afad8823c1c736857864430cce1c",
+    "AgentVaultFactory": "0x03a1d633077d1111bcc3d9a887309fd0b30cfbd4",
+    "BinaryMarketsModule": "0x3ecC694Cef705358864a646142ac17A90E29e388",
+    "BinarySettlement": "0xbF4a49e0Dfd092e5FBE8E5761064C49533e6Ed23",
+    "OracleHub": "0xe40db387cC98601Dd11bd634fF2f3AD5686dE32b"
+  },
+  "params": {
+    "timelockDelaySec": 3600,
+    "priceScale": "1000000",
+    "defaultDrawdownBase": "50000000",
+    "defaultBasePositionBase": "5000000",
+    "copilotSigner": "0x49b56870d1C0F6f3C411156D50634f7916da93D0"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "network": "testnet",
+  "venueId": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+  "seededAt": "2026-08-30T23:07:51.667Z",
+  "deployer": "0x49b56870d1C0F6f3C411156D50634f7916da93D0",
+  "agents": [
+    {
+      "name": "Metronome",
+      "vault": "0x61729c20152fD04189c5671D871d5d41A09C7eb6",
+      "strategyId": "4",
+      "mode": "reactive"
+    },
+    {
+      "name": "Downbeat",
+      "vault": "0xf8D7125208a4A51FF60607f04721E40475316936",
+      "strategyId": "5",
+      "mode": "reactive"
+    },
+    {
+      "name": "Syncopate",
+      "vault": "0x1A4bb73bb5E4B6544C795211c4942Fce2fC68fF1",
+      "strategyId": "6",
+      "mode": "reactive"
+    },
+    {
+      "name": "Andante",
+      "vault": "0x02ddC774AdCF5793E54f1EFe3A5781FB7080d864",
+      "strategyId": "7",
+      "mode": "ai-assisted"
+    },
+    {
+      "name": "Presto",
+      "vault": "0x46A2a884082519ae66672fb856E962E4E909997a",
+      "strategyId": "8",
+      "mode": "ai-assisted"
+    },
+    {
+      "name": "Rubato",
+      "vault": "0x050073697507502Da37899eBaca829f93168D2C6",
+      "strategyId": "9",
+      "mode": "ai-assisted"
+    }
+  ]
+}
