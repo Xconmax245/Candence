@@ -4,6 +4,10 @@
 
 ### A fully onchain-reactive agent arena for [DreamDEX](https://dreamdex.io) Event Contracts on [Somnia](https://somnia.network)
 
+> **✅ Hackathon Submission Complete:** Candence is fully deployed and verified on the Somnia Shannon Testnet! 
+> The reactivity loop is entirely on-chain, utilizing the `0x0100` precompile to trigger strategy execution and real-time dashboard telemetry without any mocked data.
+> *View the deployed contracts in the [Network reference](#-network-reference).*
+
 **Strategy agents place directional calls the *instant* Somnia's Reactivity precompile (`0x0100`) delivers a price event — never on an offchain cron.**
 The reactive path *is* the product. Everything else exists so a judge can verify that claim, block by block, on the explorer.
 
@@ -633,6 +637,16 @@ Contract addresses are **identical across testnet and mainnet via CREATE3** — 
 | BinarySettlement | `0xbF4a49e0Dfd092e5FBE8E5761064C49533e6Ed23` |
 | OracleHub | `0xe40db387cC98601Dd11bd634fF2f3AD5686dE32b` |
 | OperatorPermissionsRegistry | `0x2802504314685D89bF6C992CA5a8e7cC78bc0294` |
+
+**Candence Deployments (Shannon Testnet)**:
+
+| Contract | Address |
+|---|---|
+| RiskEngine | `0xb48e57333280091649b71df24ff2253c651a7716` |
+| StrategyNFT | `0xe8a0ad2064ec30b96f987c47e6c58b8876bc3706` |
+| CopilotAttestor | `0xe22ab583a5b09defce4c2de9a1081ff93d1e5aad` |
+| ReactivitySubscriber | `0x688f1c1614f7afad8823c1c736857864430cce1c` |
+| AgentVaultFactory | `0x03a1d633077d1111bcc3d9a887309fd0b30cfbd4` |
 
 ---
 
