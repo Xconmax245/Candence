@@ -138,25 +138,40 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
 
     const hashes: string[] = [];
     try {
+      // Use viem to ensure correct transaction formatting/gas estimation for Somnia
+      const { createWalletClient, custom, createPublicClient, http } = await import("viem");
+      const { somniaShannon } = await import("@somnia-chain/markets-sdk/chains");
+      
+      const walletClient = createWalletClient({
+        account: address as `0x${string}`,
+        chain: somniaShannon,
+        transport: custom(eth)
+      });
+      const publicClient = createPublicClient({
+        chain: somniaShannon,
+        transport: http("https://dream-rpc.somnia.network")
+      });
+
       for (let i = 0; i < selectorEntries.length; i++) {
         setGrantStep(i);
-        const data = encodeFunctionData({
+        const hash = await walletClient.writeContract({
+          address: registryAddress,
           abi: GRANT_ABI,
           functionName: "grantOperator",
           args: [vaultAddress, selectorEntries[i]!.selector],
         });
-        const txHash = await eth.request({
-          method: "eth_sendTransaction",
-          params: [{ from: address, to: registryAddress, data, gas: "0x30d40" }],
-        });
-        hashes.push(txHash as string);
+        
+        // Wait for it to be mined so we don't spam nonces or UI states
+        await publicClient.waitForTransactionReceipt({ hash });
+        
+        hashes.push(hash);
         setTxHashes([...hashes]);
       }
       setPhase("following");
     } catch (e) {
       setPhase("error");
       setError(
-        e instanceof Error && e.message.includes("rejected")
+        e instanceof Error && (e.message.includes("rejected") || e.message.includes("User denied"))
           ? `Signature ${grantStep + 1}/3 cancelled. You can retry.`
           : `Grant failed at step ${grantStep + 1}/3.`,
       );
@@ -166,23 +181,42 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
   async function revoke() {
     const eth = getEthereum();
     if (!eth || !address) return;
-    setError(null);
     try {
-      for (const selector of [SELECTORS.place, SELECTORS.cancel, SELECTORS.reduce]) {
-        const data = encodeFunctionData({
+      setPhase("connecting");
+      const { createWalletClient, custom, createPublicClient, http } = await import("viem");
+      const { somniaShannon } = await import("@somnia-chain/markets-sdk/chains");
+      
+      const walletClient = createWalletClient({
+        account: address as `0x${string}`,
+        chain: somniaShannon,
+        transport: custom(eth)
+      });
+      const publicClient = createPublicClient({
+        chain: somniaShannon,
+        transport: http("https://dream-rpc.somnia.network")
+      });
+
+      const selectorEntries = [
+        { name: "place", selector: SELECTORS.place },
+        { name: "cancel", selector: SELECTORS.cancel },
+        { name: "reduce", selector: SELECTORS.reduce },
+      ] as const;
+
+      for (let i = 0; i < selectorEntries.length; i++) {
+        const hash = await walletClient.writeContract({
+          address: registryAddress,
           abi: REVOKE_ABI,
           functionName: "revokeOperator",
-          args: [vaultAddress, selector],
+          args: [vaultAddress, selectorEntries[i]!.selector],
         });
-        await eth.request({
-          method: "eth_sendTransaction",
-          params: [{ from: address, to: registryAddress, data }],
-        });
+        
+        // Wait for mining to prevent UI desync or nonce collisions
+        await publicClient.waitForTransactionReceipt({ hash });
       }
-      setPhase("approving");
-      setTxHashes([]);
-    } catch {
-      setError("Revoke cancelled.");
+      setPhase("idle");
+    } catch (e) {
+      setPhase("error");
+      setError("Revocation failed or cancelled.");
     }
   }
 
