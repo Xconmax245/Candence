@@ -21,6 +21,7 @@ import {
   createWalletClient,
   http,
   decodeEventLog,
+  parseAbi,
   type Hex,
   type Abi,
 } from "viem";
@@ -121,7 +122,7 @@ async function main(): Promise<void> {
     for (const log of receipt.logs) {
       try {
         const parsed = decodeEventLog({
-          abi: CandenceAbi.agentVaultFactoryAbi as unknown as Abi,
+          abi: parseAbi(CandenceAbi.agentVaultFactoryAbi as unknown as string[]),
           data: log.data,
           topics: log.topics,
         });
@@ -130,11 +131,14 @@ async function main(): Promise<void> {
           vault = a.vault;
           strategyId = a.strategyId.toString();
         }
-      } catch {
-        /* not our event */
+      } catch (err) {
+        console.error("decode error:", err);
       }
     }
-    if (!vault) throw new Error(`Could not find VaultDeployed for ${spec.name}.`);
+    if (!vault) {
+      console.error("LOGS:", receipt.logs);
+      throw new Error(`Could not find VaultDeployed for ${spec.name}.`);
+    }
 
     // Register the vault with the subscriber so the reactive path can trigger it (§4.1).
     const regHash = await wallet.writeContract({
