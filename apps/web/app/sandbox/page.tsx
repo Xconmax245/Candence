@@ -56,7 +56,15 @@ export default async function Sandbox() {
                 <div className="sub">
                   {top.division === "ai-assisted" ? "Copilot" : "Reactor"} #{top.strategyId.toString()}
                 </div>
-                <div className="mono" style={{ color: "var(--fog)" }}>{shortHash(top.vault)}</div>
+                <a
+                  href={`${net.explorer}/address/${top.vault}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mono"
+                  style={{ color: "var(--fog)", textDecoration: "underline", textUnderlineOffset: 3 }}
+                >
+                  {shortHash(top.vault)}
+                </a>
                 <div style={{ display: "flex", gap: 28, marginTop: 6 }}>
                   <div><div className="sub" style={{ fontSize: 18 }}>{pct(top.winRate)}</div><div className="meta">win rate</div></div>
                   <div><div className="sub" style={{ fontSize: 18 }}>{top.orders}</div><div className="meta">orders</div></div>
