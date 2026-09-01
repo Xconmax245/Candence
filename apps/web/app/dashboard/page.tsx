@@ -76,7 +76,7 @@ export default async function Dashboard() {
     );
   }
 
-  const unclaimedWinnings = await getUnclaimedWinnings(agents);
+  const unclaimedWinnings = await getUnclaimedWinnings(agents ?? []);
   if (unclaimedWinnings === null) {
     return (
       <main className="section">
@@ -92,13 +92,14 @@ export default async function Dashboard() {
   // Build summary from onchain counters (source of truth) — not from getLogs.
   const s = summarizeFromCounters(counters);
 
-  const reactive = agents.filter((a) => a.division === "reactive");
-  const ai = agents.filter((a) => a.division === "ai-assisted");
-  const avgWin = (list: typeof agents) =>
+  const safeAgents = agents ?? [];
+  const reactive = safeAgents.filter((a) => a.division === "reactive");
+  const ai = safeAgents.filter((a) => a.division === "ai-assisted");
+  const avgWin = (list: typeof safeAgents) =>
     list.length ? list.reduce((x, a) => x + a.winRate, 0) / list.length : 0;
   
   const aiSignalQuality = ai.length ? ai.reduce((x, a) => x + (a.signalQuality ?? a.winRate), 0) / ai.length : 0;
-  const vol = totalVolume(agents);
+  const vol = totalVolume(safeAgents);
 
   const recent = (telemetry ?? []).slice(0, 12);
 
@@ -182,7 +183,7 @@ export default async function Dashboard() {
                 delay={400}
               />
               <ProofCard
-                value={subscriberBalance}
+                value={subscriberBalance ?? undefined}
                 decimals={2}
                 suffix=" SOMI"
                 sentence="Subscriber gas balance. Burned only on valid price events."

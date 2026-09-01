@@ -116,11 +116,8 @@ interface IBinarySettlement {
  *         is granted only the three trading selectors and can be revoked instantly.
  */
 interface IOperatorPermissionsRegistry {
-    function grantOperator(address operator, bytes4 selector) external;
-    function grantOperatorForPool(address operator, bytes4 selector, bytes32 marketId) external;
-    function revokeOperator(address operator, bytes4 selector) external;
-    function isAuthorized(address owner, address operator, bytes4 selector)
-        external
-        view
-        returns (bool);
+    function setOperatorApprovalGlobal(address operator, bytes4[] calldata selectors, bool approved) external;
+    function setOperatorApprovalForPool(address pool, address operator, bytes4[] calldata selectors, bool approved) external;
+    function isGloballyApproved(address owner, address operator, bytes4 selector) external view returns (bool);
+    function isApprovedForPool(address pool, address owner, address operator, bytes4 selector) external view returns (bool);
 }

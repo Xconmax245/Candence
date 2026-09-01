@@ -77,74 +77,61 @@ async function main() {
   console.log(`  fetched ${markets.length} Trading markets from GraphQL`);
 
   // Filter for our venue (if necessary) and prefer BTC 1h, ETH 1h, then any.
-  const venueMarkets = markets.filter(m => m.venueId.toLowerCase() === venueId.toLowerCase());
-  
-  let market =
-    venueMarkets.find((m) => m.asset === "BTC" && m.intervalSec === 3600) ??
-    venueMarkets.find((m) => m.asset === "ETH" && m.intervalSec === 3600) ??
-    venueMarkets[0] ??
-    markets[0]; // fallback to ANY open market if venue filter fails
+  const targetMarkets = [
+    markets.find((m) => m.asset === "BTC"),
+    markets.find((m) => m.asset === "ETH"),
+  ].filter(Boolean);
 
-  if (!market) {
+  if (targetMarkets.length === 0 && markets.length > 0) {
+    targetMarkets.push(markets[0]);
+  }
+
+  if (targetMarkets.length === 0) {
     console.log("\nNo open Trading window found on the indexer right now.");
-    console.log("This is expected when between windows. Re-run when a window opens.");
     return;
   }
 
-  console.log(`\nSelected market: ${market.symbol} (${market.intervalSec}s window)`);
-  console.log(`  marketId:     ${market.marketId}`);
-  console.log(`  status:       ${market.status} (should be 1 = Trading)`);
-  const nowSec = Math.floor(Date.now() / 1000);
-  const remaining = market.expiryTimeSec - nowSec;
-  console.log(`  expires in:   ${Math.floor(remaining / 60)}m ${remaining % 60}s`);
+  for (const m of targetMarkets) {
+    const market = m!;
+    const assetId = keccak256(toBytes(market.asset)) as Hex;
+    const intervalSec = Number((market as any).intervalSec || 3600);
+    const expirySec = Number((market as any).expiry || (market as any).expiryTimeSec || 0);
+    const marketId = market.marketId as Hex;
 
-  // Use keccak256(asset_symbol) as the assetId, just like the contract does internally
-  const assetId = keccak256(toBytes(market.asset)) as Hex;
-  const intervalSec = market.intervalSec;
-  const marketId = market.marketId as Hex;
+    console.log(`\nMarket: ${market.asset} (${intervalSec}s window)`);
+    console.log(`  marketId:     ${market.marketId}`);
+    const nowSec = Math.floor(Date.now() / 1000);
+    const remaining = expirySec - nowSec;
+    console.log(`  expires in:   ${Math.floor(remaining / 60)}m ${remaining % 60}s`);
 
-  console.log("\nChecking current onchain market registry...");
-  const current = await pub.readContract({
-    address: subscriber,
-    abi: setCurrentMarketAbi,
-    functionName: "currentMarket",
-    args: [assetId, intervalSec],
-  });
-  if (current === marketId) {
-    console.log("currentMarket already set to the live window. Nothing to do.");
-    return;
+    console.log("  Checking onchain currentMarket...");
+    const current = await pub.readContract({
+      address: subscriber,
+      abi: setCurrentMarketAbi,
+      functionName: "currentMarket",
+      args: [assetId, intervalSec],
+    });
+
+    if (current === marketId) {
+      console.log("  ✓ currentMarket already set to live window.");
+      continue;
+    }
+
+    console.log(`  updating currentMarket (${current === "0x0000000000000000000000000000000000000000000000000000000000000000" ? "empty" : current} -> ${marketId})...`);
+    const hash = await wallet.writeContract({
+      address: subscriber,
+      abi: setCurrentMarketAbi,
+      functionName: "setCurrentMarket",
+      args: [assetId, intervalSec, marketId],
+      account,
+      chain,
+    });
+    console.log(`  tx: ${hash}`);
+    await pub.waitForTransactionReceipt({ hash });
+    console.log(`  ✅ currentMarket set for ${market.asset}!`);
   }
-  console.log(`  current: ${current === "0x0000000000000000000000000000000000000000000000000000000000000000" ? "(empty)" : current}`);
-  console.log(`  new:     ${marketId}`);
 
-  console.log("\nCalling setCurrentMarket()...");
-  const hash = await wallet.writeContract({
-    address: subscriber,
-    abi: setCurrentMarketAbi,
-    functionName: "setCurrentMarket",
-    args: [assetId, intervalSec, marketId],
-    account,
-    chain,
-  });
-  console.log(`  tx: ${hash}`);
-  console.log("  waiting for receipt...");
-  const receipt = await pub.waitForTransactionReceipt({ hash });
-  console.log(`  confirmed in block ${receipt.blockNumber} (status: ${receipt.status})`);
-
-  if (receipt.status === "success") {
-    console.log(`
-✅ currentMarket set!
-   asset:       ${market.asset}
-   assetId:     ${assetId}
-   intervalSec: ${intervalSec}
-   marketId:    ${marketId}
-
-The ReactivitySubscriber will now trade against this window on the next
-MarkPriceUpdated event. Window expires in ~${Math.floor(remaining / 60)} minutes.
-
-Explorer: ${net.explorerBase}/tx/${hash}
-`);
-  }
+  console.log("\nDone setting current markets.");
 }
 
 main().catch(console.error);

@@ -92,7 +92,7 @@ export async function getLiveWindows(): Promise<LiveWindow[] | null> {
 
     // Filter for our venue (or all testnet binary if venue mismatch) and only BTC/ETH
     const venueFiltered = markets.filter(
-      (m) => m.venueId.toLowerCase() === venueId.toLowerCase()
+      (m) => (m.venueId ?? "").toLowerCase() === venueId.toLowerCase()
     );
     const poolToUse = venueFiltered.length > 0 ? venueFiltered : markets;
 
@@ -108,7 +108,7 @@ export async function getLiveWindows(): Promise<LiveWindow[] | null> {
 
         return {
           marketId: m.marketId as Hex,
-          symbol: m.symbol || `${m.asset}/USDC`,
+          symbol: (m as any).symbol || `${m.asset}/USDC`,
           asset: m.asset as "BTC" | "ETH",
           intervalSec,
           strike,

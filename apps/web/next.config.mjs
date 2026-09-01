@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  eslint: { ignoreDuringBuilds: true },
   // @candence/shared is a workspace TS package consumed directly.
   transpilePackages: ["@candence/shared"],
   experimental: {

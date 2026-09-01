@@ -32,32 +32,45 @@ async function main() {
   
   const grantAbi = [{
     type: "function",
-    name: "grantOperator",
+    name: "setOperatorApprovalGlobal",
     inputs: [
       { name: "operator", type: "address" },
-      { name: "selector", type: "bytes4" }
+      { name: "selectors", type: "bytes4[]" },
+      { name: "approved", type: "bool" }
+    ],
+    outputs: [],
+    stateMutability: "nonpayable"
+  }, {
+    type: "function",
+    name: "setOperatorApprovalForPool",
+    inputs: [
+      { name: "pool", type: "address" },
+      { name: "operator", type: "address" },
+      { name: "selectors", type: "bytes4[]" },
+      { name: "approved", type: "bool" }
     ],
     outputs: [],
     stateMutability: "nonpayable"
   }] as const;
 
-  console.log(`Granting operator permissions to 6 seeded vaults on ${net.name}...`);
+  const selectors = Object.values(OPERATOR_SELECTORS) as `0x${string}`[];
+
+  console.log(`Granting operator permissions to 6 seeded vaults on ${net.name} via ${registry}...`);
   for (const agent of agents.agents) {
     console.log(`\nAgent: ${agent.name} (${agent.vault})`);
-    for (const [action, selector] of Object.entries(OPERATOR_SELECTORS)) {
-      console.log(`  granting ${action} (${selector})`);
-      const hash = await wallet.writeContract({
-        address: registry,
-        abi: grantAbi,
-        functionName: "grantOperator",
-        args: [agent.vault as `0x${string}`, selector as `0x${string}`],
-        account,
-        chain
-      });
-      await publicClient.waitForTransactionReceipt({ hash });
-    }
+    console.log(`  granting global approvals for selectors [${selectors.join(", ")}]`);
+    const hash = await wallet.writeContract({
+      address: registry,
+      abi: grantAbi,
+      functionName: "setOperatorApprovalGlobal",
+      args: [agent.vault as `0x${string}`, selectors, true],
+      account,
+      chain
+    });
+    await publicClient.waitForTransactionReceipt({ hash });
+    console.log(`  ✓ tx: ${hash}`);
   }
-  console.log("\nAll grants complete! The agents can now place orders on your behalf.");
+  console.log("\nAll grants complete! The house agents are authorized on deployer wallet.");
 }
 
 main().catch((err) => {
