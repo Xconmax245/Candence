@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { encodeFunctionData, type Address, type Hex } from "viem";
 import { LiveDot } from "./motion";
 
@@ -66,6 +66,74 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
   function getEthereum(): Ethereum | null {
     return (globalThis as unknown as { ethereum?: Ethereum }).ethereum ?? null;
   }
+
+  // Auto-check connected wallet & on-chain operator approval on mount / vault change
+  useEffect(() => {
+    let cancelled = false;
+    async function checkApproval() {
+      const eth = getEthereum();
+      if (!eth) return;
+      try {
+        const accounts = (await eth.request({ method: "eth_accounts" })) as string[];
+        if (!accounts || accounts.length === 0) return;
+        const userAddr = accounts[0];
+        if (!userAddr) return;
+        if (cancelled) return;
+
+        setAddress(userAddr);
+
+        // Check local storage fast key first
+        const key = `candence_following_${vaultAddress.toLowerCase()}_${userAddr.toLowerCase()}`;
+        const savedHash = localStorage.getItem(key);
+        if (savedHash) {
+          setPhase("following");
+          setTxHashes([savedHash]);
+        }
+
+        // Verify on-chain status
+        const { createPublicClient, http } = await import("viem");
+        const { somniaShannon } = await import("@somnia-chain/markets-sdk/chains");
+        const publicClient = createPublicClient({
+          chain: somniaShannon,
+          transport: http("https://dream-rpc.somnia.network"),
+        });
+
+        const isApproved = await publicClient.readContract({
+          address: registryAddress,
+          abi: [
+            {
+              type: "function",
+              name: "isGloballyApproved",
+              stateMutability: "view",
+              inputs: [
+                { name: "owner", type: "address" },
+                { name: "operator", type: "address" },
+                { name: "selector", type: "bytes4" },
+              ],
+              outputs: [{ name: "", type: "bool" }],
+            },
+          ] as const,
+          functionName: "isGloballyApproved",
+          args: [userAddr as `0x${string}`, vaultAddress, SELECTORS.place],
+        });
+
+        if (!cancelled) {
+          if (isApproved) {
+            setPhase("following");
+          } else if (savedHash) {
+            localStorage.removeItem(key);
+            setPhase("approving");
+          }
+        }
+      } catch {
+        // Silent catch for background status check
+      }
+    }
+    checkApproval();
+    return () => {
+      cancelled = true;
+    };
+  }, [vaultAddress, registryAddress]);
 
   async function connect() {
     setError(null);
@@ -144,6 +212,9 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
       // Wait for it to be mined
       await publicClient.waitForTransactionReceipt({ hash });
       
+      const key = `candence_following_${vaultAddress.toLowerCase()}_${address.toLowerCase()}`;
+      try { localStorage.setItem(key, hash); } catch {}
+
       setTxHashes([hash]);
       setPhase("following");
     } catch (e) {
@@ -184,6 +255,9 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
       });
       
       await publicClient.waitForTransactionReceipt({ hash });
+
+      const key = `candence_following_${vaultAddress.toLowerCase()}_${address.toLowerCase()}`;
+      try { localStorage.removeItem(key); } catch {}
 
       setPhase("idle");
       setGrantStep(0);
