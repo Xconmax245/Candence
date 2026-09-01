@@ -200,7 +200,7 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
         <div className="eyebrow">FOLLOW</div>
         <div className="sub" style={{ marginTop: 6 }}>Mirror {agentName} from your own wallet</div>
         <p className="meta" style={{ marginTop: 8, lineHeight: 1.5 }}>
-          Three approvals let {agentName} place the same calls for you, each window. Your funds never move to us —
+          One approval lets {agentName} place the same calls for you, each window. Your funds never move to us —
           every fill settles straight to your wallet, and you can stop following in a single tap, anytime.
         </p>
       </div>
@@ -217,7 +217,7 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
         <div className="enter-up" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <div className="mono" style={{ color: "var(--steel)" }}>{address}</div>
           <p className="meta" style={{ lineHeight: 1.5 }}>
-            Three grant transactions will open in your wallet one by one —{" "}
+            A single grant transaction will open in your wallet for{" "}
             <strong>place</strong>, <strong>cancel</strong>, and <strong>reduce</strong> permissions.
             No funds are transferred.
           </p>
@@ -229,13 +229,13 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
         <div className="enter-up" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <div className="mono" style={{ color: "var(--steel)" }}>{address}</div>
           <div className="meta">
-            Granting permission {grantStep + 1} of 3 — sign the transaction in your wallet…
+            Granting permissions — sign the transaction in your wallet…
           </div>
           {txHashes.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {txHashes.map((h, i) => (
+              {txHashes.map((h) => (
                 <div key={h} className="mono" style={{ fontSize: 12, color: "var(--fog)" }}>
-                  ✓ grant {i + 1}/3 · {h.slice(0, 10)}…{h.slice(-6)}
+                  ✓ grant · {h.slice(0, 10)}…{h.slice(-6)}
                 </div>
               ))}
             </div>
@@ -255,9 +255,9 @@ export function CloneAgent({ agentName, vaultAddress, registryAddress }: Props) 
           </div>
           {txHashes.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {txHashes.map((h, i) => (
+              {txHashes.map((h) => (
                 <div key={h} className="mono" style={{ fontSize: 12, color: "var(--fog)" }}>
-                  grant {i + 1}/3 · {h.slice(0, 10)}…{h.slice(-6)}
+                  grant · {h.slice(0, 10)}…{h.slice(-6)}
                 </div>
               ))}
             </div>
