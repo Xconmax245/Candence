@@ -1,58 +1,59 @@
-# Candence — Deck
-
-*Three slides. Stands alone without the video.*
+# Candence — Pitch Deck (3-Slide Executive Summary)
 
 ---
 
-## Slide 1 — The gap
+## Slide 1: The Gap — Single-Shot Event Contracts Need Real-Time Execution
 
-### Event Contracts are single-shot and single-player.
+### The Problem in Web3 Event Contracts & Binary Options
+- **Polling & Cron Latency**: Existing bot networks rely on off-chain polling loops or cron jobs. When an underlying price event occurs on-chain, off-chain keepers react seconds late, suffering from front-running, high slippage, and missed settlement windows.
+- **Custodial Copy-Trading**: Traditional copy-trading requires depositing funds into pooled vaults or smart contract managers, exposing users to bridge risk, rug pulls, and locked capital.
 
-DreamDEX ships something genuinely new: fully-collateralized, zero-fee binary markets on BTC/ETH price, in rolling 1-hour (and 4-hour) windows. But today each window is a solo, manual act — a human watches a price, forms a view, places one order, and does it again next window.
-
-Three things are missing:
-
-- **No continuous, reactive participation.** Nothing places a call *the instant the price moves* — the reaction is as slow as a person or a polling bot.
-- **No way to follow a proven trader.** A great strategy helps exactly one wallet.
-- **No public proof of reliability.** There's no live, falsifiable record of who is actually performing.
-
-> The window rolls every hour, all day. That candence is begging for agents. Nobody's built the arena.
+### The Candence Solution
+- **Zero-Latency Reactive Trigger**: Candence harnesses Somnia's **Reactivity Precompile (`0x0100`)**. Price updates on underlying spot pools trigger an event that instantly invokes Candence's `ReactivitySubscriber` in the exact same block — zero cron, zero polling.
+- **Non-Custodial Operator Copy-Trading**: Built on DreamDEX's **Operator Permissions Model (`0x15C7e8CE38F021c5b45d098AaD788f63090bF20A`)**. Followers grant an `AgentVault` single-signature operator rights to place matching orders directly from their own wallets. Funds never leave the follower's wallet.
 
 ---
 
-## Slide 2 — The mechanic
-
-### Reactive agents that fire onchain, plus strategies you can clone.
-
-**Candence's core claim is architectural, not cosmetic:** agents are triggered by Somnia's Reactivity precompile (`0x0100`), not by an offchain cron. When the oracle posts a price, the chain itself invokes our `ReactivitySubscriber`, which routes — with per-vault `try/catch` isolation — to each `AgentVault`, which snaps a tick-grid order and places it within the same reactive flow.
+## Slide 2: The Mechanic — Reactive Architecture & Dual Division Strategy
 
 ```
-MarkPriceUpdated (0x0100)  →  ReactivitySubscriber  →  AgentVault.onEvent  →  placeOrder
+MarkPriceUpdated (0x0100 Precompile)
+            │
+            ▼
+┌───────────────────────────┐
+│   ReactivitySubscriber    │ (Zero-latency dispatch, per-vault isolation)
+└─────────────┬─────────────┘
+              │
+      ┌───────┴───────┐
+      ▼               ▼
+┌───────────┐   ┌───────────┐
+│ Reactive  │   │AI-Assisted│ (Attested signal bias with instant fallback)
+│  Vaults   │   │  Vaults   │
+└─────┬─────┘   └─────┬─────┘
+      │               │
+      └───────┬───────┘
+              ▼
+  IBinaryMarketsModule.placeOrderFor (On-chain settlement & wallet isolation)
 ```
 
-- **Two divisions.** A pure-Reactive division (decisions from onchain-readable state only) and an AI-assisted division (an *attested*, graded signal as one weighted input — with a mandatory, logged fallback to reactive rules if the signal is late or invalid). The AI never sits on the decision path.
-- **Tradeable strategy configs.** Each strategy is a soulbound-gated `StrategyNFT` representing the configuration, not the capital.
-- **Risk enforced onchain.** Spend caps, a drawdown circuit-breaker, and a timelocked global pause live in `RiskEngine` — not in a UI.
-
-> Every trigger, success, failure, skip, and fallback is an onchain event with a matching onchain counter. The claim is verifiable block by block.
-
----
-
-## Slide 3 — The adoption loop
-
-### Copy-trading + an open SDK turn one good agent into ecosystem volume.
-
-**Copy-trading, one signature, non-custodial.** Candence is built on DreamDEX's **operator model**: a user grants an agent permission to place orders *on their own wallet*. Funds and fills never leave that wallet; the grant is revocable instantly. Cloning a top agent is a single approval — no deposits, no custody, no jargon.
-
-**Open Agent SDK.** [`@candence/agent-kit`](../packages/agent-sdk) lets any builder ship their own agent against Event Contracts, with every hard-won gotcha (bigint tick-snapping, live-status gating, mandatory expiry, claim sweeping) baked in. More agents → more windows traded → measurable volume for the venue.
-
-**Public reliability dashboard.** A live board proves reactive success rate, event→order latency, fallback recoveries, per-division win rate/ROI, AI signal quality, and Candence-generated trading volume — every number sourced from onchain events and tagged with its own provenance.
+### Key Technical Innovations
+1. **On-Chain Isolation**: Every strategy vault invocation is wrapped in a guarded `try/catch` handler. If one strategy vault reverts or hits a spend cap, it emits a `HandlerFailed` event without blocking sibling vaults.
+2. **Dual Division Arena**:
+   - **Pure-Reactive Division**: Pure mathematical / on-chain state strategies (Metronome, Downbeat, Syncopate).
+   - **AI-Assisted Division**: Copilot strategies (Andante, Presto, Rubato) reading signed off-chain signals. If the AI signal is delayed, it gracefully degrades to pure reactive execution in the same block.
+3. **On-Chain Risk Engine**: Enforces drawdown breakers and spend caps natively on-chain before order placement.
 
 ---
 
-### Closing — Sustainability
+## Slide 3: The Adoption Loop — Developer SDK & Platform Sustainability
 
-- **Mainnet migration is a config change, not a rewrite.** Core addresses are identical testnet↔mainnet via CREATE3; only collateral decimals and the venue id differ, and both are resolved at runtime.
-- **SOMI/gas economics are budgeted, not hoped for.** Burn rate and runway are displayed live; low-balance alerts fire before exhaustion; on exhaustion a vault skips-and-logs rather than bricking.
-- **Revenue is non-custodial and claimable.** A performance fee on copy-trades is taken as a claimable share of *realized* winnings — never by holding user funds.
-- **The commons stay open.** The Agent SDK and the odds API remain public and free after the hackathon.
+### Ecosystem Growth & Flywheel
+1. **Traders & Followers**: Browse live leaderboards on the **Candence Arena**, compare win-rates and latencies, and clone top strategy agents in one signature.
+2. **Strategy Developers (`@candence/agent-kit`)**: Build and deploy custom strategy vaults using our open TypeScript SDK in under 10 lines of code.
+3. **Open Infra & Sustainability**:
+   - Gas for `ReactivitySubscriber` is funded via native STT pre-loading.
+   - Settlement claims are swept asynchronously by keepers without custody risks.
+   - Identical contract deployment via CREATE3 across testnet and mainnet (`50312` / `5031`).
+
+---
+*Candence · Fully Onchain-Reactive Agent Arena · Powered by Somnia & DreamDEX*
