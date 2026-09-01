@@ -69,23 +69,54 @@ function client(): PublicClient {
   return _client;
 }
 
-/** Live BTC/ETH windows from the REST snapshot (display/discovery only). */
+import { SomniaMarkets, SOMNIA_TESTNET_ADDRESSES } from "@somnia-chain/markets-sdk";
+import { somniaShannon } from "@somnia-chain/markets-sdk/chains";
+
+/** Live BTC/ETH windows from the indexer (display/discovery only). */
 export async function getLiveWindows(): Promise<LiveWindow[] | null> {
   const net = activeNetwork();
   try {
     const { venueId } = await resolveVenueId();
-    const scale = 10n ** BigInt(net.collateral.decimals);
-    const markets = await fetchBinaryMarketsRest({ venueId, priceScale: scale });
-    return markets.map((m: RestMarket) => ({
-      marketId: m.marketId,
-      symbol: m.symbol,
-      asset: m.asset,
-      intervalSec: m.intervalSec,
-      strike: Number(fromBaseUnits(m.strikeBase, net.collateral.decimals)),
-      upPrice: Number(fromBaseUnits(m.upPriceBase, net.collateral.decimals)),
-      openTimeSec: m.openTimeSec,
-      expiryTimeSec: m.expiryTimeSec,
-    }));
+    
+    // Connect to the official indexer, same as OnyxPulse
+    const exchange = new SomniaMarkets({
+      chain: somniaShannon,
+      indexerUrl: "https://dev.smk.somnia.host/v1/graphql",
+      wsRpcUrl: "wss://api.infra.testnet.somnia.network/ws",
+      addresses: SOMNIA_TESTNET_ADDRESSES,
+    });
+
+    const markets = await exchange.client.listBinaryMarkets({
+      status: "Trading",
+    });
+
+    // Filter for our venue (or all testnet binary if venue mismatch) and only BTC/ETH
+    const venueFiltered = markets.filter(
+      (m) => m.venueId.toLowerCase() === venueId.toLowerCase()
+    );
+    const poolToUse = venueFiltered.length > 0 ? venueFiltered : markets;
+
+    return poolToUse
+      .filter((m) => m.asset === "BTC" || m.asset === "ETH")
+      .map((m) => {
+        const strikeRaw = Number((m as any).strike || 0);
+        const strike = strikeRaw > 10000 ? strikeRaw / 100 : strikeRaw;
+        const expiryTimeSec = Number((m as any).expiry || (m as any).expiryTimeSec || 0);
+        const openTimeSec = Number((m as any).tradingStart || (m as any).openTimeSec || 0);
+        const upPrice = (m as any).lastPrice ? Number((m as any).lastPrice) : 0.5;
+        const intervalSec = Number((m as any).intervalSec || 3600);
+
+        return {
+          marketId: m.marketId as Hex,
+          symbol: m.symbol || `${m.asset}/USDC`,
+          asset: m.asset as "BTC" | "ETH",
+          intervalSec,
+          strike,
+          upPrice,
+          openTimeSec,
+          expiryTimeSec,
+        };
+      });
   } catch {
     return null;
   }

@@ -74,7 +74,7 @@ export const NETWORKS: Record<NetworkName, NetworkConfig> = {
       symbol: "tUSDC",
     },
     startingVenueId:
-      "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
+      "0x1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f",
     explorerBase: ENV(
       "NEXT_PUBLIC_EXPLORER_BASE",
       "https://shannon-explorer.somnia.network",
