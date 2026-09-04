@@ -86,6 +86,8 @@ async function main(): Promise<void> {
     const { abi, bytecode } = loadArtifact(name);
     // eslint-disable-next-line no-console
     process.stdout.write(`  deploying ${name} ...`);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - viem complains about missing kzg in some typescript versions
     const hash = await wallet.deployContract({ abi, bytecode, args, account, chain });
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     if (receipt.status !== "success" || !receipt.contractAddress) {
@@ -149,10 +151,12 @@ async function main(): Promise<void> {
   await call(factory, "AgentVaultFactory", "setSubscriber", [subscriber]);
 
   // ── Persist ──
+  const deployedAtBlock = await publicClient.getBlockNumber();
   const record: DeploymentRecord = {
     network: net.name,
     chainId: net.chainId,
     deployedAt: new Date().toISOString(),
+    deployedAtBlock: Number(deployedAtBlock),
     deployer: account.address,
     contracts: {
       RiskEngine: risk,

@@ -71,9 +71,16 @@ async function main() {
     addresses: SOMNIA_TESTNET_ADDRESSES,
   });
 
-  const markets = await exchange.client.listBinaryMarkets({
-    status: "Trading",
-  });
+  let markets: any[] = [];
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      markets = await exchange.client.listBinaryMarkets({ status: "Trading" });
+      break;
+    } catch (e: any) {
+      console.log(`  attempt ${attempt} failed: ${e.message?.slice(0, 80)}. Retrying...`);
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+  }
   console.log(`  fetched ${markets.length} Trading markets from GraphQL`);
 
   // Filter for our venue (if necessary) and prefer BTC 1h, ETH 1h, then any.
@@ -94,7 +101,7 @@ async function main() {
   for (const m of targetMarkets) {
     const market = m!;
     const assetId = keccak256(toBytes(market.asset)) as Hex;
-    const intervalSec = Number((market as any).intervalSec || 3600);
+    const intervalSec = 3600; // Tracked hero interval on ReactivitySubscriber
     const expirySec = Number((market as any).expiry || (market as any).expiryTimeSec || 0);
     const marketId = market.marketId as Hex;
 

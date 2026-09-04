@@ -48,6 +48,7 @@ export interface DeploymentRecord {
   network: string;
   chainId: number;
   deployedAt: string;
+  deployedAtBlock?: number;
   deployer: `0x${string}`;
   contracts: Record<string, `0x${string}`>;
   params: Record<string, string | number>;
