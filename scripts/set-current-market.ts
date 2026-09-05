@@ -83,18 +83,43 @@ async function main() {
   }
   console.log(`  fetched ${markets.length} Trading markets from GraphQL`);
 
-  // Filter for our venue (if necessary) and prefer BTC 1h, ETH 1h, then any.
+  const marketStatusAbi = [
+    {
+      type: "function",
+      name: "status",
+      inputs: [],
+      outputs: [{ name: "", type: "uint8" }],
+      stateMutability: "view",
+    },
+  ] as const;
+
+  // Filter for markets that are actually Trading (1) on-chain right now
+  const liveTradingMarkets: typeof markets = [];
+  for (const m of markets) {
+    try {
+      const st = await pub.readContract({
+        address: m.marketAddress as Hex,
+        abi: marketStatusAbi,
+        functionName: "status",
+      });
+      if (st === 1) { // Trading = 1
+        liveTradingMarkets.push(m);
+      }
+    } catch {}
+  }
+  console.log(`  found ${liveTradingMarkets.length} markets with onchain status == 1 (Trading)`);
+
   const targetMarkets = [
-    markets.find((m) => m.asset === "BTC"),
-    markets.find((m) => m.asset === "ETH"),
+    liveTradingMarkets.find((m) => m.asset === "BTC"),
+    liveTradingMarkets.find((m) => m.asset === "ETH"),
   ].filter(Boolean);
 
-  if (targetMarkets.length === 0 && markets.length > 0) {
-    targetMarkets.push(markets[0]);
+  if (targetMarkets.length === 0 && liveTradingMarkets.length > 0) {
+    targetMarkets.push(liveTradingMarkets[0]);
   }
 
   if (targetMarkets.length === 0) {
-    console.log("\nNo open Trading window found on the indexer right now.");
+    console.log("\nNo open Trading window found on-chain right now.");
     return;
   }
 

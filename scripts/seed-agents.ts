@@ -132,7 +132,7 @@ async function main(): Promise<void> {
           strategyId = a.strategyId.toString();
         }
       } catch (err) {
-        console.error("decode error:", err);
+        // Ignored non-matching ABI events (e.g. ERC721 Transfer)
       }
     }
     if (!vault) {

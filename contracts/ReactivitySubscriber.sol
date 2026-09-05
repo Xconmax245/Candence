@@ -321,18 +321,17 @@ contract ReactivitySubscriber is Timelocked, ReentrancyGuard, SomniaEventHandler
         //   data[0:32]  = marketKey  (so vaults can cross-check if needed)
         //   data[32:64] = markPrice
         //   data[64:96] = rawMidpoint (used as strike proxy in _decide)
-        bytes memory payload;
-        if (data.length >= 64) {
-            payload = abi.encode(
-                marketKey,
-                uint256(bytes32(data[0:32])),   // markPrice
-                uint256(bytes32(data[32:64]))   // rawMidpoint
-            );
-        } else {
-            payload = abi.encode(marketKey, uint256(0), uint256(0));
-        }
+        (uint256 markPrice, uint256 rawMidpoint) = _parseMarkPrice(data);
+        bytes memory payload = abi.encode(marketKey, markPrice, rawMidpoint);
 
         _dispatch(marketKey, payload, false, address(0));
+    }
+
+    function _parseMarkPrice(bytes calldata data) internal pure returns (uint256 markPrice, uint256 rawMidpoint) {
+        if (data.length >= 64) {
+            markPrice = uint256(bytes32(data[0:32]));
+            rawMidpoint = uint256(bytes32(data[32:64]));
+        }
     }
 
     /**

@@ -4,7 +4,7 @@
 [profile.default]
 src = "."
 out = "out"
-libs = ["lib"]
+libs = ["lib/openzeppelin-contracts", "lib/openzeppelin-contracts-upgradeable", "lib/reactivity-contracts", "lib/forge-std"]
 test = "test"
 solc = "0.8.30"
 optimizer = true

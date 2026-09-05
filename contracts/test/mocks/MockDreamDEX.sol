@@ -100,8 +100,28 @@ contract MockBinaryMarketsModule is IBinaryMarketsModule {
         return statusOf[marketId];
     }
 
-    function markets(bytes32 marketId) external view returns (address pool) {
-        return poolOf[marketId];
+    function markets(bytes32 marketId)
+        external
+        view
+        returns (
+            uint256 oracleQuestionId,
+            uint8 outcomeSlotCount,
+            uint8 voidPolicy,
+            address collateral,
+            uint32 originOperatorId,
+            bytes32 originVenueId,
+            address oracleAdapter,
+            address creator,
+            address market,
+            address pool,
+            uint256 yesId,
+            uint256 noId,
+            uint64 tradingStart,
+            uint64 expiry
+        )
+    {
+        outcomeSlotCount = 2;
+        pool = poolOf[marketId];
     }
 
     function marketInfo(bytes32 marketId)

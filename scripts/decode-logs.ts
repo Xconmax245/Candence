@@ -15,8 +15,8 @@ const handlerSucceeded = parseAbiItem(
 
 async function main() {
   const dep = readDeployment("testnet");
-  const subscriber = dep?.contracts?.ReactivitySubscriber as Address;
-  console.log(`Subscriber: ${subscriber}`);
+  const targetAddr = (process.argv[2] ?? dep?.contracts?.ReactivitySubscriber ?? "0x688f1c1614f7afad8823c1c736857864430cce1c") as Address;
+  console.log(`Subscriber: ${targetAddr}`);
 
   const pub = createPublicClient({
     chain: somniaTestnet,
@@ -26,14 +26,14 @@ async function main() {
   const head = await pub.getBlockNumber();
   console.log(`Head block: ${head}`);
   
-  // Search over last 20,000 blocks
-  const fromBlock = BigInt(dep?.deployedAtBlock ?? 475565379);
-  console.log(`Scanning logs from deployment block ${fromBlock} to ${head}...`);
+  // Search over broader window
+  const fromBlock = process.argv[3] ? BigInt(process.argv[3]) : 47500000n;
+  console.log(`Scanning logs from block ${fromBlock} to ${head}...`);
 
   const [failed, skipped, succeeded] = await Promise.all([
-    pub.getLogs({ address: subscriber, event: handlerFailed, fromBlock, toBlock: head }).catch(() => []),
-    pub.getLogs({ address: subscriber, event: handlerSkipped, fromBlock, toBlock: head }).catch(() => []),
-    pub.getLogs({ address: subscriber, event: handlerSucceeded, fromBlock, toBlock: head }).catch(() => []),
+    pub.getLogs({ address: targetAddr, event: handlerFailed, fromBlock, toBlock: head }).catch(() => []),
+    pub.getLogs({ address: targetAddr, event: handlerSkipped, fromBlock, toBlock: head }).catch(() => []),
+    pub.getLogs({ address: targetAddr, event: handlerSucceeded, fromBlock, toBlock: head }).catch(() => []),
   ]);
 
   console.log(`\n=== SUBSCRIBER LOG SUMMARY ===`);

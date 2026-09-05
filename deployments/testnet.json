@@ -1,22 +1,22 @@
 {
   "network": "testnet",
   "chainId": 50312,
-  "deployedAt": "2026-09-04T00:30:59.900Z",
-  "deployedAtBlock": 479087570,
+  "deployedAt": "2026-09-05T08:45:26.317Z",
+  "deployedAtBlock": 480247963,
   "deployer": "0x49b56870d1C0F6f3C411156D50634f7916da93D0",
   "contracts": {
-    "RiskEngine": "0x040f8746fa169bb0062e01d3dc0c35f612a53578",
-    "StrategyNFT": "0x24cb4530c1dfbf0f6d184e6ecf99f33061a7c577",
-    "CopilotAttestor": "0xf0ea3b1133dad7b9e79b35ddc14ef7d2e874a711",
-    "ReactivitySubscriber": "0xde9f821e182d952a5cff976f2bc8e718db595da2",
-    "AgentVaultFactory": "0x2208f6d92e646c12930c648d730274d74f2411c7",
+    "RiskEngine": "0x2d92444e11f1efb9edd5ac25073542e7fc8c5cf7",
+    "StrategyNFT": "0xb11931e4a94db4ba86588537a2ea8f71b300969d",
+    "CopilotAttestor": "0x13926bf93886762d044fe62adfe21007d5ed460e",
+    "ReactivitySubscriber": "0x8573f4759d02b24c347a3bf4071b3012839b4d2b",
+    "AgentVaultFactory": "0x0ae1c55c38499991ae1cd43c7ab3518a83e920b7",
     "BinaryMarketsModule": "0x3ecC694Cef705358864a646142ac17A90E29e388",
     "BinarySettlement": "0xbF4a49e0Dfd092e5FBE8E5761064C49533e6Ed23",
     "OracleHub": "0xe40db387cC98601Dd11bd634fF2f3AD5686dE32b"
   },
   "params": {
     "timelockDelaySec": 3600,
-    "priceScale": "1000000",
+    "priceScale": "1000000000000000000",
     "defaultDrawdownBase": "50000000",
     "defaultBasePositionBase": "5000000",
     "copilotSigner": "0x49b56870d1C0F6f3C411156D50634f7916da93D0"

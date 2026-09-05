@@ -27,11 +27,12 @@ library CandenceMath {
         pure
         returns (uint256)
     {
-        if (tick == 0) revert BadTick();
-        if (scale == 0 || tick >= scale) revert BadTick();
-        uint256 snapped = (rawPrice / tick) * tick;
-        if (snapped == 0) snapped = tick; // never 0 (probability > 0)
-        if (snapped >= scale) snapped = scale - tick; // never >= 1 (probability < 1)
+        if (tick == 0 || scale == 0) revert BadTick();
+        if (tick > scale) revert BadTick();
+        uint256 effTick = (tick >= scale) ? 1 : tick;
+        uint256 snapped = (rawPrice / effTick) * effTick;
+        if (snapped == 0) snapped = effTick;
+        if (snapped >= scale) snapped = scale > effTick ? scale - effTick : scale - 1;
         return snapped;
     }
 

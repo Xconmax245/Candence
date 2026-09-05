@@ -1,43 +1,43 @@
 {
   "network": "testnet",
-  "venueId": "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",
-  "seededAt": "2026-08-30T23:07:51.667Z",
+  "venueId": "0x1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f",
+  "seededAt": "2026-09-05T08:47:25.127Z",
   "deployer": "0x49b56870d1C0F6f3C411156D50634f7916da93D0",
   "agents": [
     {
       "name": "Metronome",
-      "vault": "0x61729c20152fD04189c5671D871d5d41A09C7eb6",
-      "strategyId": "4",
+      "vault": "0x307d6e171BFc0DC23D9CDbf6EB0f83B48d92b99D",
+      "strategyId": "1",
       "mode": "reactive"
     },
     {
       "name": "Downbeat",
-      "vault": "0xf8D7125208a4A51FF60607f04721E40475316936",
-      "strategyId": "5",
+      "vault": "0x99f7cE9d792b852e4C6856B91C00130629FA9Bf8",
+      "strategyId": "2",
       "mode": "reactive"
     },
     {
       "name": "Syncopate",
-      "vault": "0x1A4bb73bb5E4B6544C795211c4942Fce2fC68fF1",
-      "strategyId": "6",
+      "vault": "0x960C82Efa8603189766a2727C2ADf90595beCCad",
+      "strategyId": "3",
       "mode": "reactive"
     },
     {
       "name": "Andante",
-      "vault": "0x02ddC774AdCF5793E54f1EFe3A5781FB7080d864",
-      "strategyId": "7",
+      "vault": "0x6Cd6E8797c3319a164609c3907c95B1A44D5cEd1",
+      "strategyId": "4",
       "mode": "ai-assisted"
     },
     {
       "name": "Presto",
-      "vault": "0x46A2a884082519ae66672fb856E962E4E909997a",
-      "strategyId": "8",
+      "vault": "0xE5E5f32F4928D147c7d083255a928A6623E92B9A",
+      "strategyId": "5",
       "mode": "ai-assisted"
     },
     {
       "name": "Rubato",
-      "vault": "0x050073697507502Da37899eBaca829f93168D2C6",
-      "strategyId": "9",
+      "vault": "0x31b926E07594F988571aB026708E68Be13e0dDd4",
+      "strategyId": "6",
       "mode": "ai-assisted"
     }
   ]

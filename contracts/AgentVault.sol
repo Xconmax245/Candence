@@ -6,6 +6,8 @@ import {CandenceMath} from "./base/CandenceMath.sol";
 import {IAgentVault, VaultMode, IRiskEngine, ICopilotAttestor} from "./interfaces/ICandence.sol";
 import {
     IBinaryMarketsModule,
+    IBinaryMarket,
+    IBinaryPool,
     IBinarySettlement,
     OrderRequest,
     MarketStatus
@@ -18,7 +20,7 @@ import {
  *
  *           - It never holds user collateral and is never a payout destination.
  *           - It is a registered operator (OperatorPermissionsRegistry) allowed
- *             to call placeOrderFor / cancelOrderFor / reduceOrderFor on each
+ *             to call placeBinaryOrderFor / cancelOrder / reduceOrder on each
  *             owner's wallet. Funds + fills stay in the owner's wallet at all
  *             times; deposits/withdrawals remain owner-only.
  *           - Spend limits + strategy logic live HERE (enforced via RiskEngine),
@@ -182,6 +184,20 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
         _act(marketKey, data);
     }
 
+    struct MarketDetails {
+        address marketAddr;
+        address poolAddr;
+        uint64 tradingStart;
+        uint64 expiryTime;
+    }
+
+    function _getMarketDetails(bytes32 marketKey) internal view returns (MarketDetails memory d) {
+        (,,,,,,,, address mAddr, address pAddr,,, uint64 tStart, uint64 expiry) = module.markets(marketKey);
+        if (mAddr != address(0) && pAddr != address(0)) {
+            d = MarketDetails(mAddr, pAddr, tStart, expiry);
+        }
+    }
+
     /**
      * @dev The core decision + placement routine. Defensive throughout — a revert
      *      here becomes a HandlerFailed event upstream, never blocking other vaults.
@@ -190,114 +206,144 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
         if (riskEngine.isVaultPaused(address(this))) revert VaultPaused();
         if (owners.length == 0) revert NoOwners();
 
-        // 1) LIVE onchain status gate (§1.2 #1) — never trust cached/indexed.
-        if (module.marketStatus(marketKey) != MarketStatus.Trading) {
+        // 1) Resolve market + pool from module
+        MarketDetails memory md = _getMarketDetails(marketKey);
+
+        if (md.poolAddr == address(0) || md.marketAddr == address(0)) {
+            emit SkippedNotWritable(marketKey, "no-market");
+            return;
+        }
+
+        // 2) LIVE onchain status gate (§1.2 #1) — check market contract status
+        if (IBinaryMarket(md.marketAddr).status() != MarketStatus.Trading) {
             emit SkippedNotWritable(marketKey, "not-trading");
             return;
         }
 
-        // 2) Typed market fields only (§1.7 #11) + interval-scaled headroom (§1.7 #9).
-        uint32 intervalSec;
-        uint64 expiryTime;
-        {
-            (, uint32 _i,,, uint64 _e,) = module.marketInfo(marketKey);
-            intervalSec = _i;
-            expiryTime = _e;
-        }
-        if (!CandenceMath.hasHeadroom(block.timestamp, expiryTime, intervalSec)) {
+        uint32 intervalSec = uint32(md.expiryTime > md.tradingStart ? md.expiryTime - md.tradingStart : 3600);
+        if (!CandenceMath.hasHeadroom(block.timestamp, md.expiryTime, intervalSec)) {
             emit SkippedNotWritable(marketKey, "no-headroom");
             return;
         }
 
-        // 3) Decide direction + snap price and size to grid.
+        (uint8 outcome, uint256 price, uint256 size, uint256 notional) = _makeDecision(data, md.poolAddr);
+        if (size == 0) {
+            emit SkippedNotWritable(marketKey, "size-zero");
+            return;
+        }
+
+        PlaceArgs memory pargs = PlaceArgs({
+            marketKey: marketKey,
+            poolAddr: md.poolAddr,
+            outcome: outcome,
+            price: price,
+            size: size,
+            notional: notional,
+            expireNs: _expireNs(md.expiryTime)
+        });
+
+        // 4) Place for each granted owner, enforcing spend cap onchain (§1.6).
+        for (uint256 i = 0; i < owners.length; i++) {
+            address ow = owners[i];
+            if (!isOwnerGranted[ow]) continue;
+            _tryPlaceOrder(pargs, ow);
+        }
+    }
+
+    function _makeDecision(
+        bytes calldata data,
+        address poolAddr
+    ) internal view returns (uint8 outcome, uint256 price, uint256 size, uint256 notional) {
+        (uint256 tick, /* minQty */, uint256 lot) = IBinaryPool(poolAddr).getOrderBookParameters();
+        // Use the vault's configured priceScale (set to 1e18 for DreamDEX pools which use 18-decimal prices).
+        uint256 scale = priceScale;
+
+        (uint256 markPrice, uint256 strike) = _parseEventData(data);
+        (uint8 _o, uint256 rawPrice) = _decide(markPrice, strike, scale);
+        outcome = _o;
+        
+        price = CandenceMath.snapPrice(rawPrice, tick, scale);
+        size = CandenceMath.quantizeSize(riskEngine.positionCapBase(address(this)), lot);
+        if (size > 0) {
+            notional = CandenceMath.notional(price, size, scale);
+        }
+    }
+
+    function _parseEventData(bytes calldata data) internal pure returns (uint256 markPrice, uint256 strike) {
+        if (data.length >= 96) {
+            (, markPrice, strike) = abi.decode(data, (bytes32, uint256, uint256));
+        }
+    }
+
+    struct PlaceArgs {
+        bytes32 marketKey;
+        address poolAddr;
         uint8 outcome;
         uint256 price;
         uint256 size;
         uint256 notional;
-        {
-            (uint8 _o, uint256 rawPrice) = _decide(marketKey, data, intervalSec, expiryTime);
-            outcome = _o;
-            
-            (uint256 tick, uint256 scale, uint256 lot) = module.poolGrid(marketKey);
-            price = CandenceMath.snapPrice(rawPrice, tick, scale);
-            size = CandenceMath.quantizeSize(riskEngine.positionCapBase(address(this)), lot);
-            if (size == 0) {
-                emit SkippedNotWritable(marketKey, "size-zero");
-                return;
-            }
-            notional = CandenceMath.notional(price, size, scale);
-        }
-
-        uint64 expireNs = _expireNs(expiryTime);
-
-        // 5) Place for each granted owner, enforcing the spend cap onchain (§1.6).
-        for (uint256 i = 0; i < owners.length; i++) {
-            address ow = owners[i];
-            if (!isOwnerGranted[ow]) continue;
-            _tryPlaceOrder(marketKey, outcome, price, size, notional, expireNs, ow);
-        }
+        uint64 expireNs;
     }
 
-    function _tryPlaceOrder(
-        bytes32 marketKey,
-        uint8 outcome,
+    function _buildPlacePayload(
+        address ow,
+        uint8 kind,
         uint256 price,
         uint256 size,
-        uint256 notional,
-        uint64 expireNs,
-        address ow
-    ) private {
-        (bool ok,) = riskEngine.checkSpend(address(this), ow, notional);
+        uint64 expireNs
+    ) private pure returns (bytes memory) {
+        return abi.encodeWithSelector(
+            IBinaryPool.placeBinaryOrderFor.selector,
+            ow,
+            kind,
+            price,
+            size,
+            expireNs,
+            uint8(0),
+            uint8(0),
+            address(0),
+            uint96(0),
+            uint64(0)
+        );
+    }
+
+    function _tryPlaceOrder(PlaceArgs memory p, address ow) private {
+        (bool ok,) = riskEngine.checkSpend(address(this), ow, p.notional);
         if (!ok) {
-            emit SkippedNotWritable(marketKey, "spend-cap");
+            emit SkippedNotWritable(p.marketKey, "spend-cap");
             return;
         }
 
-        IRiskEngineCommit(address(riskEngine)).commitSpend(ow, notional);
-        OrderRequest memory req = OrderRequest({
-            marketId: marketKey,
-            outcome: outcome,
-            price: price,
-            size: size,
-            expireTimestampNs: expireNs,
-            ioc: true
-        });
-        
-        try module.placeOrderFor(ow, req) {
-            emit OrderPlaced(ow, marketKey, outcome, size, price);
-        } catch {
-            emit SkippedNotWritable(marketKey, "place-failed");
+        IRiskEngineCommit(address(riskEngine)).commitSpend(ow, p.notional);
+
+        // outcome 0 (Up) -> kind 0 (BUY_YES)
+        // outcome 1 (Down) -> kind 2 (BUY_NO)
+        uint8 kind = (p.outcome == 0) ? 0 : 2;
+
+        bytes memory callPayload = _buildPlacePayload(ow, kind, p.price, p.size, p.expireNs);
+
+        (bool success,) = p.poolAddr.call(callPayload);
+        if (success) {
+            emit OrderPlaced(ow, p.marketKey, p.outcome, p.size, p.price);
+        } else {
+            emit SkippedNotWritable(p.marketKey, "place-failed");
         }
     }
 
     /**
      * @dev Decision function. Reactive baseline is a mean-reversion-lite lean off
-     *      the delivered mark price vs strike; AiAssisted mode blends in a valid
-     *      attested signal, else falls back and LOGS it (§4.2, §5).
+     *      the delivered mark price vs strike.
      * @return outcome 0=Up, 1=Down. @return rawPrice desired probability in base units.
      */
-    function _decide(bytes32 marketKey, bytes calldata data, uint32 intervalSec, uint64 expiryTime)
+    function _decide(uint256 markPrice, uint256 strike, uint256 targetScale)
         internal
+        pure
         returns (uint8 outcome, uint256 rawPrice)
     {
-        uint256 markPrice;
-        uint256 strike;
-        if (data.length >= 96) {
-            markPrice = uint256(bytes32(data[32:64]));
-            strike = uint256(bytes32(data[64:96]));
-        }
         bool leanUp = markPrice >= strike;
 
-        uint256 half = priceScale / 2;
-        uint256 edge = priceScale / 20;
-
-        if (modeValue == VaultMode.AiAssisted && address(signalSource) != address(0)) {
-            (bool aiValid, bool aiLean, uint256 aiEdge) = _getAiSignal(marketKey, intervalSec, expiryTime);
-            if (aiValid) {
-                leanUp = aiLean;
-                edge = aiEdge + edge;
-            }
-        }
+        uint256 half = targetScale / 2;
+        uint256 edge = targetScale / 20;
 
         if (leanUp) {
             outcome = 0; // Up
@@ -308,7 +354,7 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
         }
     }
 
-    function _getAiSignal(bytes32 marketKey, uint32 intervalSec, uint64 expiryTime) private returns (bool valid, bool leanUp, uint256 edge) {
+    function _getAiSignal(bytes32 marketKey, uint32 intervalSec, uint64 expiryTime, uint256 targetScale) private returns (bool valid, bool leanUp, uint256 edge) {
         bytes32 windowKey = _windowKey(marketKey, intervalSec, expiryTime);
         (int32 scoreBps, uint16 confBps, uint64 issuedAt, bool graded,) = signalSource.latestSignal(windowKey);
         
@@ -361,7 +407,9 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
         require(marketKeys.length == outcomes.length, "len");
         for (uint256 i = 0; i < marketKeys.length; i++) {
             bytes32 mk = marketKeys[i];
-            MarketStatus st = module.marketStatus(mk);
+            (,,,,,,,, address marketAddr,,,,,) = module.markets(mk);
+            if (marketAddr == address(0)) continue;
+            MarketStatus st = IBinaryMarket(marketAddr).status();
             bool voided = st == MarketStatus.Voided;
             if (st != MarketStatus.Resolved && !voided) continue;
 
@@ -376,10 +424,6 @@ contract AgentVault is Ownable2Step, ReentrancyGuard, IAgentVault {
             } else {
                 uint256 amount = _redeem(ownerWallet, mk, outcomes[i]);
                 emit ClaimSwept(mk, outcomes[i], amount, false);
-                // Realized PnL vs the notional staked is reconciled by the operator
-                // loop which knows the stake; here we record the redeemed inflow.
-                // Winners: positive; losers redeem 0 → recorded as a loss delta by
-                // the operator via recordSettlement in its accounting pass.
             }
         }
     }
